@@ -1564,15 +1564,16 @@ function stripEmojisAndTrim(text) {
         .trim();
 }
 
-function buildAuchanUrl(numeProdus) {
+function buildEsselungaUrl(numeProdus) {
     const curat = stripEmojisAndTrim(numeProdus);
     const encoded = encodeURIComponent(curat);
-    return `https://www.auchan.ro/${encoded}?_q=${encoded}&map=ft`;
+    return `https://spesaonline.esselunga.it/commerce/nav/supermercato/store/ricerca/${encoded}`;
 }
 
 function openAuchan(numeProdus) {
-    window.open(buildAuchanUrl(numeProdus), '_blank');
+    window.open(buildEsselungaUrl(numeProdus), '_blank');
 }
+
 
 // ============================================================
 // PRODUCT MENUS MODAL
