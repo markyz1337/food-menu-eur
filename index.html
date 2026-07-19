@@ -567,6 +567,24 @@
         .backup-btn-export { background: rgba(192,132,252,0.12); border: 1px solid rgba(192,132,252,0.3); color: #d8b4fe; width: 100%; }
         .backup-btn-export:active { background: rgba(192,132,252,0.25); transform: scale(0.97); }
 
+        #search-query-modal {
+            position: fixed; inset: 0; z-index: 3200;
+            display: flex; align-items: flex-end; justify-content: center;
+            padding: 0; pointer-events: none; opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        #search-query-modal.active { pointer-events: auto; opacity: 1; }
+        #search-query-modal .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        #search-query-modal .modal-panel {
+            position: relative; z-index: 1; width: 100%; max-width: 440px;
+            background: rgba(10,10,16,0.98); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 28px 28px 0 0; padding: 24px 20px 40px;
+            transform: translateY(30px);
+            transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        #search-query-modal.active .modal-panel { transform: translateY(0); }
+
+
 
         /* ============================================================
            UNUSED PRODUCTS SECTION
@@ -668,7 +686,27 @@
     </div>
 </div>
 
+<!-- SEARCH QUERY MODAL -->
+<div id="search-query-modal">
+    <div class="modal-backdrop" onclick="closeSearchQueryModal()"></div>
+    <div class="modal-panel">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-black tracking-tighter text-white">Termen căutare</h3>
+                <p id="sq-modal-prod-name" class="text-[9px] font-bold text-purple-400 uppercase tracking-[2px]"></p>
+            </div>
+            <button onclick="closeSearchQueryModal()" class="w-9 h-9 flex items-center justify-center bg-white/5 rounded-full text-white font-bold text-sm">✕</button>
+        </div>
+        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Lasă gol pentru a folosi numele produsului</p>
+        <input type="text" id="sq-modal-input" placeholder="ex: Morcovi bine facuti 1kg Esselunga" class="search-pill w-full mb-4">
+        <button onclick="saveSearchQueryFromModal()" class="w-full py-4 bg-purple-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-purple-500/40">
+            Salvează
+        </button>
+    </div>
+</div>
+
 <!-- 1. SHEET LISTA CUMPĂRĂTURI -->
+
 
 <div id="shopping-sheet" class="bottom-sheet full overflow-hidden" style="position: fixed;">
     <div class="p-6 border-b border-white/10 bg-black/50" style="flex-shrink: 0;">
@@ -1356,8 +1394,9 @@ function buildShoppingListContent() {
       class="flex-shrink-0 bg-white/10 text-white px-2 py-0.5 rounded-md text-[11px] font-black border border-white/5 uppercase cursor-pointer active:scale-95 transition-transform select-none">
     ${suAfisata.val} ${suAfisata.unit}
 </span>
-                            <p onclick="openAuchan('${numeEscaped}')"
+                            <p onclick="openAuchanForProduct('${item.id}')"
                                class="font-bold text-white text-sm truncate cursor-pointer active:opacity-70 transition-opacity ${isConfirmed ? 'line-through opacity-50' : ''}">
+
                                 ${pReal.nume}
                             </p>
                             ${countMeniuri > 1 ? `<span class="w-5 h-5 flex items-center justify-center bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-black border border-emerald-500/30">${countMeniuri}</span>` : ''}
@@ -1403,8 +1442,9 @@ function buildShoppingListContent() {
                                 <span class="flex-shrink-0 bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-md text-[11px] font-black border border-emerald-500/20 uppercase">
                                     ${su.val} ${su.unit}
                                 </span>
-                                <p onclick="openAuchan('${numeEscaped}')"
+                                <p onclick="openAuchanForProduct('${item.id}')"
                                    class="font-bold text-white/50 text-sm truncate line-through cursor-pointer">
+
                                     ${pReal.nume}
                                 </p>
                             </div>
@@ -1573,6 +1613,51 @@ function buildEsselungaUrl(numeProdus) {
 function openAuchan(numeProdus) {
     window.open(buildEsselungaUrl(numeProdus), '_blank');
 }
+
+function getEsselungaSearchTerm(prod) {
+    if (prod && prod.searchQuery && prod.searchQuery.trim() !== '') {
+        return prod.searchQuery.trim();
+    }
+    return prod ? prod.nume : '';
+}
+
+function openAuchanForProduct(prodId) {
+    const prod = catalog.find(p => p.id === prodId);
+    const term = getEsselungaSearchTerm(prod);
+    if (!term) return;
+    window.open(buildEsselungaUrl(term), '_blank');
+}
+
+let sqModalProdId = null;
+
+function editSearchQuery(prodId) {
+    const prod = catalog.find(p => p.id === prodId);
+    if (!prod) return;
+    sqModalProdId = prodId;
+    document.getElementById('sq-modal-prod-name').textContent = prod.nume;
+    document.getElementById('sq-modal-input').value = prod.searchQuery || '';
+    document.getElementById('search-query-modal').classList.add('active');
+    setTimeout(() => document.getElementById('sq-modal-input').focus(), 300);
+}
+
+function closeSearchQueryModal() {
+    document.getElementById('search-query-modal').classList.remove('active');
+    sqModalProdId = null;
+}
+
+async function saveSearchQueryFromModal() {
+    if (!sqModalProdId) return;
+    const cIdx = catalog.findIndex(p => p.id === sqModalProdId);
+    if (cIdx === -1) return;
+    const val = document.getElementById('sq-modal-input').value;
+    catalog[cIdx].searchQuery = val.trim();
+    catalog[cIdx].modifiedAt = Date.now();
+    await db_upsertCatalogItem(catalog[cIdx]);
+    closeSearchQueryModal();
+    render();
+}
+
+
 
 
 // ============================================================
@@ -1792,7 +1877,8 @@ function renderFridge() {
 
         list.innerHTML += `
             <div class="fridge-product-row">
-                <div class="flex-grow min-w-0 cursor-pointer active:opacity-70 transition-opacity" onclick="openAuchan('${numeEscJS}')">
+                <div class="flex-grow min-w-0 cursor-pointer active:opacity-70 transition-opacity" onclick="openAuchanForProduct('${prod.id}')">
+
                     <p class="font-bold text-white text-sm truncate leading-tight">${prod.nume}</p>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest">${prod.pretEur.toFixed(2)} EUR/${prod.unit}</p>
@@ -1969,7 +2055,8 @@ function renderFridgeResults() {
                 const ingNumeEsc = ing.nume.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 return `
                 <div class="fridge-ing-row">
-                    <span onclick="openAuchan('${ingNumeEsc}')" class="text-xs text-white font-semibold truncate flex-grow cursor-pointer active:opacity-70 transition-opacity">${ing.nume}</span>
+                    <span onclick="openAuchanForProduct('${ing.idProd}')" class="text-xs text-white font-semibold truncate flex-grow cursor-pointer active:opacity-70 transition-opacity">${ing.nume}</span>
+
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <span class="text-[9px] font-black px-2 py-0.5 rounded-md border ${ing.available >= ing.qty ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : ing.available > 0 ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'}">
 ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUnit(ing.available, ing.unit)).toUpperCase()} → ${(su => su.val)(smartUnit(ing.qty, ing.unit))} ${(su => su.unit)(smartUnit(ing.qty, ing.unit)).toUpperCase()}
@@ -2034,8 +2121,9 @@ ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUni
             const ingredienteHTML = res.ingredienteComplet.map(ing => {
                 const ingNumeEsc = ing.nume.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 return `
-                <div class="fridge-ing-row">
-                    <span onclick="openAuchan('${ingNumeEsc}')" class="text-xs ${ing.ok ? 'text-white' : 'text-red-300/80'} font-semibold truncate flex-grow cursor-pointer active:opacity-70 transition-opacity">${ing.nume}</span>
+                 <div class="fridge-ing-row">
+                    <span onclick="openAuchanForProduct('${ing.idProd}')" class="text-xs ${ing.ok ? 'text-white' : 'text-red-300/80'} font-semibold truncate flex-grow cursor-pointer active:opacity-70 transition-opacity">${ing.nume}</span>
+
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <span class="text-[9px] font-black px-2 py-0.5 rounded-md border ${ing.ok ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : ing.available > 0 ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'}">
 ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUnit(ing.available, ing.unit)).toUpperCase()} → ${(su => su.val)(smartUnit(ing.qty, ing.unit))} ${(su => su.unit)(smartUnit(ing.qty, ing.unit)).toUpperCase()}
@@ -2182,13 +2270,16 @@ async function db_loadCatalog() {
     if (!USE_SUPABASE) return;
     const { data, error } = await supabaseClient.from('foodmenueuro_catalog').select('*');
     if (error) { console.error('Eroare catalog:', error); return; }
-    catalog = data.map(r => ({ id: r.id, nume: r.nume, pretEur: parseFloat(r.pretEur), unit: r.unit, addedAt: r.addedAt || r.added_at || null, modifiedAt: r.modifiedAt || r.modified_at || null }));
+    catalog = data.map(r => ({ id: r.id, nume: r.nume, pretEur: parseFloat(r.pretEur), unit: r.unit, addedAt: r.addedAt || r.added_at || null, modifiedAt: r.modifiedAt || r.modified_at || null, searchQuery: r.searchQuery || r.search_query || '' }));
 }
+
+
 
 async function db_upsertCatalogItem(prod) {
     if (!USE_SUPABASE) return;
-    await supabaseClient.from('foodmenueuro_catalog').upsert({ id: prod.id, nume: prod.nume, pretEur: prod.pretEur, unit: prod.unit, addedAt: prod.addedAt || Date.now(), modifiedAt: Date.now() });
+    await supabaseClient.from('foodmenueuro_catalog').upsert({ id: prod.id, nume: prod.nume, pretEur: prod.pretEur, unit: prod.unit, addedAt: prod.addedAt || Date.now(), modifiedAt: Date.now(), searchQuery: prod.searchQuery || null });
 }
+
 
 async function db_loadRetete() {
     if (!USE_SUPABASE) return;
@@ -2277,7 +2368,8 @@ function openMenusManager() {
                     const numeEsc = p.nume.replace(/'/g, "\\'");
                     ingredienteHTML += `
                     <div class="flex justify-between items-end border-b border-white/5 pb-2">
-                        <span onclick="openAuchan('${numeEsc}')" class="text-base text-gray-300 font-bold tracking-tight cursor-pointer active:opacity-70 transition-opacity">${p.nume}</span>
+                        <span onclick="openAuchanForProduct('${p.id}')" class="text-base text-gray-300 font-bold tracking-tight cursor-pointer active:opacity-70 transition-opacity">${p.nume}</span>
+
                         <span class="text-base text-white font-black">${+ing.qty.toFixed(3)} <small class="text-[10px] text-purple-400 uppercase">${p.unit}</small></span>
                     </div>`;
                 }
@@ -2764,8 +2856,9 @@ function renderCatalog() {
                     <input class="font-bold text-base block text-white bg-transparent outline-none border-none w-full"
                            value="${prod.nume}"
                            onchange="updateCatalogField(${cIdx}, 'nume', this.value)">` : `
-                    <span onclick="openAuchan('${numeEscJS}')" class="font-bold text-base block ${isUnused ? 'text-white/50' : 'text-white'} cursor-pointer active:opacity-70 transition-opacity">${prod.nume}</span>`}
+                    <span onclick="openAuchanForProduct('${prod.id}')" class="font-bold text-base block ${isUnused ? 'text-white/50' : 'text-white'} cursor-pointer active:opacity-70 transition-opacity">${prod.nume}</span>`}
                     <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+
                         ${(prod.modifiedAt || prod.addedAt) ? `<span class="${prod.modifiedAt ? 'date-badge modified' : 'date-badge'}">${prod.modifiedAt ? '✎' : '＋'}${formatDateCompact(prod.modifiedAt || prod.addedAt)}</span>` : ''}
                         ${menusBadge}
                     </div>
@@ -2789,14 +2882,23 @@ function renderCatalog() {
                         </div>
                     </div>
                     ${isUnlocked ? `
-                    <button onclick="openAuchan('${numeEscJS}')"
+                    <button onclick="openAuchanForProduct('${prod.id}')"
                             class="w-8 h-8 flex items-center justify-center bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full active:scale-90 transition-all">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </button>
+                    <button onclick="editSearchQuery('${prod.id}')"
+                            title="Termen de cautare personalizat"
+                            class="w-8 h-8 flex items-center justify-center bg-white/5 text-gray-500 border border-white/10 rounded-full active:scale-90 transition-all">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </button>
                     <button onclick="confirmDeleteCatalogItem(${cIdx})" class="w-8 h-8 flex items-center justify-center bg-red-500/10 text-red-500 border border-red-500/20 rounded-full">✕</button>` : ''}
+
                 </div>
             </div>`;
     }
@@ -2861,11 +2963,12 @@ async function updateCatalogFieldAndScroll(prodId, cIdx, field, value) {
 }
 
 async function addNewProductToCatalog() {
-    const newProd = { id: 'c' + Date.now(), nume: 'Produs Nou', pretEur: 0, unit: 'Kg', addedAt: Date.now(), modifiedAt: null };
+    const newProd = { id: 'c' + Date.now(), nume: 'Produs Nou', pretEur: 0, unit: 'Kg', addedAt: Date.now(), modifiedAt: null, searchQuery: '' };
     catalog.unshift(newProd);
     await db_upsertCatalogItem(newProd);
     render();
 }
+
 
 async function confirmDeleteCatalogItem(idx) {
     const prod = catalog[idx];
