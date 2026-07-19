@@ -621,6 +621,34 @@
             opacity: 0.75;
         }
         .catalog-unused-card:last-child { margin-bottom: 0; }
+
+        /* MARQUEE TITLURI (mod blocat) — catalog, meniuri, frigider */
+        .marquee-wrap {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            min-width: 0;
+            mask-image: linear-gradient(to right, black 85%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+        }
+        .marquee-track {
+            display: inline-flex;
+            white-space: nowrap;
+        }
+        .marquee-track.marquee-active {
+            animation: appMarquee linear infinite;
+            animation-duration: var(--marquee-duration, 8s);
+        }
+        .marquee-track .marquee-copy {
+            padding-right: 40px;
+            white-space: nowrap;
+        }
+        @keyframes appMarquee {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
+
     </style>
 </head>
 
@@ -1879,8 +1907,13 @@ function renderFridge() {
             <div class="fridge-product-row">
                 <div class="flex-grow min-w-0 cursor-pointer active:opacity-70 transition-opacity" onclick="openAuchanForProduct('${prod.id}')">
 
-                    <p class="font-bold text-white text-sm truncate leading-tight">${prod.nume}</p>
+                    <div class="marquee-wrap">
+                        <span class="marquee-track font-bold text-white text-sm" data-title-track>
+                            <span class="marquee-copy">${prod.nume}</span>
+                        </span>
+                    </div>
                     <div class="flex items-center gap-2 mt-0.5">
+
                         <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest">${prod.pretEur.toFixed(2)} EUR/${prod.unit}</p>
                         <span class="${dateCls}">${datePrefix}${dateLabel}</span>
                     </div>
@@ -2055,10 +2088,14 @@ function renderFridgeResults() {
                 const ingNumeEsc = ing.nume.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 return `
                 <div class="fridge-ing-row">
-                    <span onclick="openAuchanForProduct('${ing.idProd}')" class="text-xs text-white font-semibold truncate flex-grow cursor-pointer active:opacity-70 transition-opacity">${ing.nume}</span>
-
+                    <div class="marquee-wrap flex-grow" onclick="openAuchanForProduct('${ing.idProd}')">
+                        <span class="marquee-track text-xs text-white font-semibold" data-title-track>
+                            <span class="marquee-copy">${ing.nume}</span>
+                        </span>
+                    </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <span class="text-[9px] font-black px-2 py-0.5 rounded-md border ${ing.available >= ing.qty ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : ing.available > 0 ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'}">
+
 ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUnit(ing.available, ing.unit)).toUpperCase()} → ${(su => su.val)(smartUnit(ing.qty, ing.unit))} ${(su => su.unit)(smartUnit(ing.qty, ing.unit)).toUpperCase()}
                         </span>
                     </div>
@@ -2071,9 +2108,14 @@ ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUni
                         <div class="flex-grow min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-[9px] font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-2 py-0.5 uppercase">#${idx+1}</span>
-                                <p onclick="openAuchan('${numeEscJS}')" class="font-extrabold text-white text-sm truncate cursor-pointer active:opacity-70 transition-opacity">${r.nume}</p>
+                                <div class="marquee-wrap flex-grow" onclick="openAuchan('${numeEscJS}')">
+                                    <span class="marquee-track font-extrabold text-white text-sm" data-title-track>
+                                        <span class="marquee-copy">${r.nume}</span>
+                                    </span>
+                                </div>
                                 ${singleBadge}
                             </div>
+
                             <div class="efficiency-bar"><div class="efficiency-bar-fill" style="width:${barW}%"></div></div>
                         </div>
                         <div class="text-right flex-shrink-0">
@@ -2122,10 +2164,14 @@ ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUni
                 const ingNumeEsc = ing.nume.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 return `
                  <div class="fridge-ing-row">
-                    <span onclick="openAuchanForProduct('${ing.idProd}')" class="text-xs ${ing.ok ? 'text-white' : 'text-red-300/80'} font-semibold truncate flex-grow cursor-pointer active:opacity-70 transition-opacity">${ing.nume}</span>
-
+                    <div class="marquee-wrap flex-grow" onclick="openAuchanForProduct('${ing.idProd}')">
+                        <span class="marquee-track text-xs ${ing.ok ? 'text-white' : 'text-red-300/80'} font-semibold" data-title-track>
+                            <span class="marquee-copy">${ing.nume}</span>
+                        </span>
+                    </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <span class="text-[9px] font-black px-2 py-0.5 rounded-md border ${ing.ok ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : ing.available > 0 ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'}">
+
 ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUnit(ing.available, ing.unit)).toUpperCase()} → ${(su => su.val)(smartUnit(ing.qty, ing.unit))} ${(su => su.unit)(smartUnit(ing.qty, ing.unit)).toUpperCase()}
                         </span>
                     </div>
@@ -2138,8 +2184,13 @@ ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUni
                         <div class="flex-grow min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-[9px] font-black text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-2 py-0.5 uppercase">#${idx+1}</span>
-                                <p onclick="openAuchan('${numeEscJS}')" class="font-extrabold text-white/70 text-sm truncate cursor-pointer active:opacity-70 transition-opacity">${r.nume}</p>
+                                <div class="marquee-wrap flex-grow" onclick="openAuchan('${numeEscJS}')">
+                                    <span class="marquee-track font-extrabold text-white/70 text-sm" data-title-track>
+                                        <span class="marquee-copy">${r.nume}</span>
+                                    </span>
+                                </div>
                             </div>
+
                             <div class="flex items-center gap-2 ml-1 mt-1">
                                 <span class="text-[8px] font-black px-2 py-0.5 rounded-md border border-white/10 text-gray-400 bg-white/5">
                                     ${areInFrigider}/${areTotal} ingrediente în frigider
@@ -2181,7 +2232,10 @@ ${(su => su.val)(smartUnit(ing.available, ing.unit))} ${(su => su.unit)(smartUni
     if (available.length === 0 && unavailable.length === 0) {
         container.innerHTML += `<p class="text-center text-gray-600 py-4 font-black text-[10px] uppercase tracking-widest">Niciun meniu configurat</p>`;
     }
+
+    requestAnimationFrame(() => applyMarquees());
 }
+
 
 // ============================================================
 
@@ -2631,10 +2685,17 @@ function render() {
                     <input type="checkbox" ${reteta.selectat ? 'checked' : ''}
                            onchange="toggleSelectReteta(${rIdx}, this.checked)"
                            class="w-6 h-6 accent-purple-500">
-                    <input class="font-extrabold text-xl flex-grow text-white bg-transparent outline-none border-none ${textLockCls}"
-                           value="${reteta.nume}" ${isUnlocked ? '' : 'readonly'}
-                           onchange="updateRetetaField(${rIdx}, 'nume', this.value)">
+                    ${isUnlocked ? `
+                    <input class="font-extrabold text-xl flex-grow text-white bg-transparent outline-none border-none"
+                           value="${reteta.nume}"
+                           onchange="updateRetetaField(${rIdx}, 'nume', this.value)">` : `
+                    <div class="marquee-wrap flex-grow">
+                        <span class="marquee-track font-extrabold text-xl text-white" data-title-track>
+                            <span class="marquee-copy">${reteta.nume}</span>
+                        </span>
+                    </div>`}
                 </div>
+
 
                 <div class="recipe-content-wrapper">
                     <div class="flex items-center gap-2 mb-4 ml-10">
@@ -2658,9 +2719,12 @@ function render() {
                                 <button onclick="openProductPicker(${rIdx}, ${iIdx})" class="flex-grow text-left text-xs font-semibold text-gray-200 truncate pl-2">
                                     ${p ? p.nume : 'Alege Produs...'}
                                 </button>` : `
-                                <span class="flex-grow text-left text-xs font-semibold text-gray-200 truncate pl-2">
-                                    ${p ? p.nume : 'Alege Produs...'}
-                                </span>`}
+                                <div class="marquee-wrap flex-grow pl-2">
+                                    <span class="marquee-track text-left text-xs font-semibold text-gray-200" data-title-track>
+                                        <span class="marquee-copy">${p ? p.nume : 'Alege Produs...'}</span>
+                                    </span>
+                                </div>`}
+
                                 <div class="ing-qty-wrap ${isUnlocked ? '' : 'opacity-60'}">
                                     <input id="inline-input-${rIdx}-${iIdx}"
                                            type="number"
@@ -2849,58 +2913,106 @@ function renderCatalog() {
             ? 'catalog-unused-card'
             : 'glass-card p-5 flex justify-between items-center';
 
-        return `
-            <div id="catalog-item-${prod.id}" class="${cardClass}">
-                <div class="flex-grow min-w-0">
-                    ${isUnlocked ? `
+        if (isUnlocked) {
+            return `
+            <div id="catalog-item-${prod.id}" class="${cardClass}" style="flex-direction:column; align-items:stretch; gap:0; padding:18px;">
+                <div class="w-full">
                     <input class="font-bold text-base block text-white bg-transparent outline-none border-none w-full"
                            value="${prod.nume}"
-                           onchange="updateCatalogField(${cIdx}, 'nume', this.value)">` : `
-                    <span onclick="openAuchanForProduct('${prod.id}')" class="font-bold text-base block ${isUnused ? 'text-white/50' : 'text-white'} cursor-pointer active:opacity-70 transition-opacity">${prod.nume}</span>`}
-                    <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                           onchange="updateCatalogField(${cIdx}, 'nume', this.value)">
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-[10px] flex-shrink-0">🔍</span>
+                        <input type="text"
+                               class="text-[9px] font-bold uppercase tracking-tight flex-grow bg-transparent outline-none border-none truncate ${prod.searchQuery ? 'text-cyan-400' : 'text-gray-600'}"
+                               value="${prod.searchQuery || ''}"
+                               placeholder="foloseşte numele produsului"
+                               onfocus="this.select()"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+                               onchange="updateCatalogField(${cIdx}, 'searchQuery', this.value.trim())">
+                    </div>
 
+                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                         ${(prod.modifiedAt || prod.addedAt) ? `<span class="${prod.modifiedAt ? 'date-badge modified' : 'date-badge'}">${prod.modifiedAt ? '✎' : '＋'}${formatDateCompact(prod.modifiedAt || prod.addedAt)}</span>` : ''}
                         ${menusBadge}
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="bg-white/5 px-3 py-2 rounded-xl flex flex-col items-center border border-white/5 ${!isUnlocked ? 'cursor-pointer active:bg-white/10 transition-all' : ''}" style="min-width:fit-content;" ${pretClickAttr}>
+
+                <div class="h-px w-full bg-white/[0.06] my-3"></div>
+
+                <div class="flex items-center justify-between gap-2">
+                    <div class="bg-white/5 px-3 py-2 rounded-xl flex flex-col items-center border border-white/5" style="min-width:fit-content;">
                         <input type="number" step="0.01"
                                inputmode="decimal"
-                               class="text-center font-black ${isUnused ? 'text-gray-500' : 'text-emerald-400'} bg-transparent outline-none border-none ${isUnlocked ? '' : 'pointer-events-none'}"
-                               value="${prod.pretEur}" ${isUnlocked ? '' : 'readonly tabindex="-1"'}
+                               class="text-center font-black text-emerald-400 bg-transparent outline-none border-none"
+                               value="${prod.pretEur}"
                                onfocus="this.select()"
                                onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
                                onblur="updateCatalogFieldAndScroll('${prod.id}', ${cIdx}, 'pretEur', parseFloat(this.value) || 0)"
                                style="width: ${String(prod.pretEur).length + 2}ch; -moz-appearance:textfield; -webkit-appearance:none;">
                         <div class="flex items-center gap-1">
                             <span class="text-[8px] font-bold text-gray-600">EUR /</span>
-                            <input class="text-[8px] font-black text-gray-500 uppercase bg-transparent outline-none border-none ${textLockCls}"
-                                   value="${prod.unit}" ${isUnlocked ? '' : 'readonly'}
+                            <input class="text-[8px] font-black text-gray-500 uppercase bg-transparent outline-none border-none"
+                                   value="${prod.unit}"
                                    onchange="updateCatalogField(${cIdx}, 'unit', this.value)"
                                    style="width: ${prod.unit.length + 1}ch;">
                         </div>
                     </div>
-                    ${isUnlocked ? `
-                    <button onclick="openAuchanForProduct('${prod.id}')"
-                            class="w-8 h-8 flex items-center justify-center bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full active:scale-90 transition-all">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </button>
-                    <button onclick="editSearchQuery('${prod.id}')"
-                            title="Termen de cautare personalizat"
-                            class="w-8 h-8 flex items-center justify-center bg-white/5 text-gray-500 border border-white/10 rounded-full active:scale-90 transition-all">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 20h9"></path>
-                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                        </svg>
-                    </button>
-                    <button onclick="confirmDeleteCatalogItem(${cIdx})" class="w-8 h-8 flex items-center justify-center bg-red-500/10 text-red-500 border border-red-500/20 rounded-full">✕</button>` : ''}
 
+                    <div class="flex items-center gap-1.5 bg-white/[0.03] border border-white/[0.06] rounded-2xl p-1.5">
+                        <button onclick="openAuchanForProduct('${prod.id}')"
+                                class="w-8 h-8 flex items-center justify-center bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full active:scale-90 transition-all">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                        <button onclick="editSearchQuery('${prod.id}')"
+                                title="Termen de cautare personalizat"
+                                class="w-8 h-8 flex items-center justify-center bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full active:scale-90 transition-all">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                        </button>
+                        <button onclick="confirmDeleteCatalogItem(${cIdx})" class="w-8 h-8 flex items-center justify-center bg-red-500/10 text-red-500 border border-red-500/20 rounded-full active:scale-90 transition-all">✕</button>
+                    </div>
                 </div>
             </div>`;
+        }
+
+        return `
+            <div id="catalog-item-${prod.id}" class="${cardClass}">
+                <div class="flex-grow min-w-0">
+                    <div onclick="openAuchanForProduct('${prod.id}')" class="marquee-wrap cursor-pointer active:opacity-70 transition-opacity">
+                        <span class="marquee-track font-bold text-base ${isUnused ? 'text-white/50' : 'text-white'}" data-title-track>
+                            <span class="marquee-copy">${prod.nume}</span>
+                        </span>
+                    </div>
+
+
+                    <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                        ${(prod.modifiedAt || prod.addedAt) ? `<span class="${prod.modifiedAt ? 'date-badge modified' : 'date-badge'}">${prod.modifiedAt ? '✎' : '＋'}${formatDateCompact(prod.modifiedAt || prod.addedAt)}</span>` : ''}
+                        ${menusBadge}
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="bg-white/5 px-3 py-2 rounded-xl flex flex-col items-center border border-white/5 cursor-pointer active:bg-white/10 transition-all" style="min-width:fit-content;" ${pretClickAttr}>
+                        <input type="number" step="0.01"
+                               inputmode="decimal"
+                               class="text-center font-black ${isUnused ? 'text-gray-500' : 'text-emerald-400'} bg-transparent outline-none border-none pointer-events-none"
+                               value="${prod.pretEur}" readonly tabindex="-1"
+                               style="width: ${String(prod.pretEur).length + 2}ch; -moz-appearance:textfield; -webkit-appearance:none;">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[8px] font-bold text-gray-600">EUR /</span>
+                            <input class="text-[8px] font-black text-gray-500 uppercase bg-transparent outline-none border-none pointer-events-none"
+                                   value="${prod.unit}" readonly
+                                   style="width: ${prod.unit.length + 1}ch;">
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+
     }
 
     // Render produse folosite
@@ -2941,11 +3053,35 @@ function renderCatalog() {
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 500);
     }
+
+    requestAnimationFrame(() => applyMarquees());
 }
+
+
+
+function applyMarquees() {
+    document.querySelectorAll('[data-title-track]').forEach(track => {
+        if (track.dataset.marqueeSetup) return;
+        const wrap = track.parentElement;
+        const originalText = track.querySelector('.marquee-copy').textContent;
+        const overflowAmount = track.scrollWidth - wrap.clientWidth;
+
+        if (overflowAmount > 4) {
+            track.innerHTML = `<span class="marquee-copy">${originalText}</span><span class="marquee-copy">${originalText}</span>`;
+            const fullWidth = track.scrollWidth / 2;
+            const duration = Math.max(4, fullWidth / 35);
+            track.style.setProperty('--marquee-duration', duration + 's');
+            track.classList.add('marquee-active');
+        }
+        track.dataset.marqueeSetup = '1';
+    });
+}
+
 
 // ============================================================
 // CRUD
 // ============================================================
+
 
 async function updateCatalogField(cIdx, field, value) {
     catalog[cIdx][field] = value;
