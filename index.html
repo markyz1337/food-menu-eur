@@ -2672,10 +2672,11 @@ function closeSavedMenusModal() {
 
 function computeSelectionStats(sel) {
     const snapshot = sel.reteteSnapshot || [];
-    let totalEUR = 0, totalOre = 0;
+    let totalEUR = 0, totalOre = 0, nrMeniuriValide = 0;
     snapshot.forEach(snap => {
         const r = retete.find(x => String(x.id) === String(snap.id));
         if (!r) return;
+        nrMeniuriValide++;
         let costUnitar = 0;
         r.ingrediente.forEach(ing => {
             const p = catalog.find(x => x.id === ing.idProd);
@@ -2688,8 +2689,10 @@ function computeSelectionStats(sel) {
     const nrPers = sel.numPersoane || 1;
     const zileAutonomie = (totalOre / nrPers) / orePerZi;
     const costPeZi = totalOre > 0 ? (totalEUR / totalOre) * (orePerZi * nrPers) : 0;
-    return { totalEUR, zileAutonomie, costPeZi, nrMeniuri: snapshot.length };
+    const nrLipsa = snapshot.length - nrMeniuriValide;
+    return { totalEUR, zileAutonomie, costPeZi, nrMeniuri: nrMeniuriValide, nrLipsa };
 }
+
 
 
 let pendingSelectionData = null;
@@ -2915,7 +2918,8 @@ function renderSavedMenusList() {
                         <p class="saved-menu-stat-val">${sel.numPersoane}</p>
                     </div>
                 </div>
-                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">${stats.nrMeniuri} meniuri</p>
+                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">${stats.nrMeniuri} meniuri${stats.nrLipsa > 0 ? ` <span class="text-red-400">· ${stats.nrLipsa} șters${stats.nrLipsa > 1 ? 'e' : ''}</span>` : ''}</p>
+
                 <button class="saved-menu-expand-btn ${isExpanded ? 'expanded' : ''}" onclick="toggleSelectieExpand('${sel.id}')">
                     <span>${isExpanded ? 'Ascunde meniurile' : 'Vezi meniurile incluse'}</span>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
