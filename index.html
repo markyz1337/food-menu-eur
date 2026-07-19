@@ -589,6 +589,90 @@
         }
         #search-query-modal.active .modal-panel { transform: translateY(0); }
 
+        /* SAVED MENUS MODAL */
+        #saved-menus-modal {
+            position: fixed; inset: 0; z-index: 3300;
+            display: flex; align-items: flex-end; justify-content: center;
+            padding: 0; pointer-events: none; opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        #saved-menus-modal.active { pointer-events: auto; opacity: 1; }
+        #saved-menus-modal .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        #saved-menus-modal .modal-panel {
+            position: relative; z-index: 1; width: 100%; max-width: 440px;
+            background: rgba(10,10,16,0.98); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 28px 28px 0 0; padding: 24px 20px 40px;
+            transform: translateY(30px);
+            transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+            max-height: 80vh; overflow-y: auto;
+        }
+        #saved-menus-modal.active .modal-panel { transform: translateY(0); }
+        .saved-menu-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px; padding: 14px 16px; margin-bottom: 10px;
+        }
+        .saved-menu-name { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .saved-menu-stats { display:flex; gap:6px; margin-bottom: 10px; }
+        .saved-menu-stat { flex:1; background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:6px 4px; text-align:center; }
+        .saved-menu-stat-label { font-size:7px; font-weight:900; color:#6b7280; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+        .saved-menu-stat-val { font-size:12px; font-weight:900; color:#fff; }
+        .saved-menu-actions { display:flex; gap:8px; }
+        .saved-menu-btn-apply { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:12px; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:1px; cursor:pointer; transition: all 0.2s; background: rgba(192,132,252,0.12); border:1px solid rgba(192,132,252,0.3); color:#d8b4fe; }
+        .saved-menu-btn-apply:active { background: rgba(192,132,252,0.25); transform: scale(0.97); }
+        .saved-menu-btn-delete { width:38px; display:flex; align-items:center; justify-content:center; border-radius:12px; background: rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#f87171; cursor:pointer; transition: all 0.2s; }
+        .saved-menu-btn-delete:active { transform: scale(0.9); }
+
+        .saved-menu-rename-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); cursor:pointer; transition: all 0.2s; flex-shrink:0; }
+        .saved-menu-rename-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
+        .saved-menu-expand-btn { width:100%; display:flex; align-items:center; justify-content:center; gap:6px; padding:8px; border-radius:10px; background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:1px; cursor:pointer; transition: all 0.2s; margin-bottom:8px; }
+        .saved-menu-expand-btn:active { background: rgba(255,255,255,0.07); }
+        .saved-menu-expand-btn svg { transition: transform 0.3s ease; }
+        .saved-menu-expand-btn.expanded svg { transform: rotate(180deg); }
+        .saved-menu-detail-row { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; margin-bottom:6px; }
+        .saved-menu-detail-name { font-size:12px; font-weight:700; color:#e2e8f0; }
+        .saved-menu-detail-meta { font-size:8px; font-weight:900; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
+        .saved-menu-detail-price { font-size:13px; font-weight:900; color:#c084fc; white-space:nowrap; margin-left:8px; }
+
+        /* CONFIRM DELETE SELECTIE MODAL */
+        #confirm-delete-selectie-modal {
+            position: fixed; inset: 0; z-index: 3500;
+            display: flex; align-items: flex-end; justify-content: center;
+            padding: 0; pointer-events: none; opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        #confirm-delete-selectie-modal.active { pointer-events: auto; opacity: 1; }
+        #confirm-delete-selectie-modal .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        #confirm-delete-selectie-modal .modal-panel {
+            position: relative; z-index: 1; width: 100%; max-width: 440px;
+            background: rgba(10,10,16,0.98); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 28px 28px 0 0; padding: 24px 20px 40px;
+            transform: translateY(30px);
+            transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        #confirm-delete-selectie-modal.active .modal-panel { transform: translateY(0); }
+
+
+
+        /* NAME SELECTIE MODAL */
+        #name-selectie-modal {
+            position: fixed; inset: 0; z-index: 3400;
+            display: flex; align-items: flex-end; justify-content: center;
+            padding: 0; pointer-events: none; opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        #name-selectie-modal.active { pointer-events: auto; opacity: 1; }
+        #name-selectie-modal .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        #name-selectie-modal .modal-panel {
+            position: relative; z-index: 1; width: 100%; max-width: 440px;
+            background: rgba(10,10,16,0.98); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 28px 28px 0 0; padding: 24px 20px 40px;
+            transform: translateY(30px);
+            transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        #name-selectie-modal.active .modal-panel { transform: translateY(0); }
+
+
+
 
 
         /* ============================================================
@@ -738,7 +822,70 @@
     </div>
 </div>
 
+<!-- SAVED MENUS MODAL -->
+<div id="saved-menus-modal">
+    <div class="modal-backdrop" onclick="closeSavedMenusModal()"></div>
+    <div class="modal-panel">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-black tracking-tighter text-white">MENIURI SALVATE</h3>
+                <p class="text-[9px] font-bold text-purple-400 uppercase tracking-[2px]">Selecții salvate de meniuri</p>
+            </div>
+            <button onclick="closeSavedMenusModal()" class="w-9 h-9 flex items-center justify-center bg-white/5 rounded-full text-white font-bold text-sm">✕</button>
+        </div>
+        <button onclick="saveCurrentSelection()" class="locked-only-block w-full py-4 mb-4 bg-purple-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-purple-500/40">
+            + Salvează selecția curentă
+        </button>
+        <div id="saved-menus-list"></div>
+    </div>
+</div>
+
+<!-- NAME SELECTIE MODAL -->
+<div id="name-selectie-modal">
+    <div class="modal-backdrop" onclick="closeNameSelectieModal()"></div>
+    <div class="modal-panel">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 id="name-selectie-title" class="text-lg font-black tracking-tighter text-white">Nume selecție</h3>
+                <p id="name-selectie-subtitle" class="text-[9px] font-bold text-purple-400 uppercase tracking-[2px]">Dă un nume acestei selecții</p>
+
+            </div>
+            <button onclick="closeNameSelectieModal()" class="w-9 h-9 flex items-center justify-center bg-white/5 rounded-full text-white font-bold text-sm">✕</button>
+        </div>
+        <input type="text" id="name-selectie-input" placeholder="ex: Meniuri preferate" class="search-pill w-full mb-4">
+        <button onclick="confirmSaveCurrentSelection()" class="w-full py-4 bg-purple-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-purple-500/40">
+            Salvează
+        </button>
+    </div>
+</div>
+
+<!-- CONFIRM DELETE SELECTIE MODAL -->
+<div id="confirm-delete-selectie-modal">
+    <div class="modal-backdrop" onclick="closeConfirmDeleteSelectieModal()"></div>
+    <div class="modal-panel">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-black tracking-tighter text-white">Ștergi selecția?</h3>
+                <p id="confirm-delete-selectie-name" class="text-[9px] font-bold text-red-400 uppercase tracking-[2px]"></p>
+            </div>
+            <button onclick="closeConfirmDeleteSelectieModal()" class="w-9 h-9 flex items-center justify-center bg-white/5 rounded-full text-white font-bold text-sm">✕</button>
+        </div>
+        <p class="text-[11px] font-semibold text-gray-400 mb-5">Această selecție salvată va fi ștearsă definitiv. Nu afectează meniurile din planul tău curent.</p>
+        <div class="flex gap-3">
+            <button onclick="closeConfirmDeleteSelectieModal()" class="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest">
+                Anulează
+            </button>
+            <button onclick="executeDeleteSelectieSalvata()" class="flex-1 py-4 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-red-500/40">
+                Șterge
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- 1. SHEET LISTA CUMPĂRĂTURI -->
+
+
+
 
 
 <div id="shopping-sheet" class="bottom-sheet full overflow-hidden" style="position: fixed;">
@@ -889,7 +1036,14 @@
         </svg>
         Exportă PDF
     </button>
+    <button onclick="openSavedMenusModal()"
+            style="width:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(192,132,252,0.06);border:1px solid rgba(192,132,252,0.25);border-radius:18px;color:#d8b4fe;cursor:pointer;transition:all 0.2s;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </button>
 </div>
+
 
 
         <div id="recipes-list" class="space-y-6"></div>
@@ -1169,7 +1323,15 @@ let isCollapsed = false;
 
 let frigider = [];
 let fridgeActiveCtx = null;
+let selectiiSalvate = [];
+let expandedSelectii = new Set();
+let nameModalMode = 'create';
+let nameModalTargetId = null;
+let pendingDeleteSelectieId = null;
+
+
 let fridgeStockSearchTerm = '';
+
 let fridgeStockExpanded = false;
 
 const FRIDGE_PREVIEW_COUNT = 4;
@@ -1808,6 +1970,37 @@ async function db_deleteFrigiderItem(id) {
     if (!USE_SUPABASE) return;
     await supabaseClient.from('foodmenueuro_frigider').delete().eq('id', id);
 }
+
+async function db_loadSelectiiSalvate() {
+    if (!USE_SUPABASE) return;
+    const { data, error } = await supabaseClient.from('foodmenueuro_selectii_salvate').select('*');
+    if (error) { console.error('Eroare selectii salvate:', error); return; }
+    selectiiSalvate = (data || []).map(r => ({
+        id: r.id,
+        nume: r.nume,
+        reteteSnapshot: r.retete_ids || [],
+        numPersoane: r.num_persoane || 1,
+        createdAt: r.created_at || Date.now()
+    }));
+}
+
+async function db_upsertSelectieSalvata(sel) {
+    if (!USE_SUPABASE) return;
+    await supabaseClient.from('foodmenueuro_selectii_salvate').upsert({
+        id: sel.id,
+        nume: sel.nume,
+        retete_ids: sel.reteteSnapshot,
+        num_persoane: sel.numPersoane,
+        created_at: sel.createdAt
+    });
+}
+
+
+async function db_deleteSelectieSalvata(id) {
+    if (!USE_SUPABASE) return;
+    await supabaseClient.from('foodmenueuro_selectii_salvate').delete().eq('id', id);
+}
+
 
 // ============================================================
 // FRIGIDER -- RENDER
@@ -2460,8 +2653,283 @@ function openMenusManager() {
 }
 
 // ============================================================
+// SAVED MENUS (SELECȚII SALVATE)
+// ============================================================
+
+function openSavedMenusModal() {
+    renderSavedMenusList();
+    document.getElementById('saved-menus-modal').classList.add('active');
+}
+
+function closeSavedMenusModal() {
+    document.getElementById('saved-menus-modal').classList.remove('active');
+}
+
+function computeSelectionStats(sel) {
+    const snapshot = sel.reteteSnapshot || [];
+    let totalEUR = 0, totalOre = 0;
+    snapshot.forEach(snap => {
+        const r = retete.find(x => String(x.id) === String(snap.id));
+        if (!r) return;
+        let costUnitar = 0;
+        r.ingrediente.forEach(ing => {
+            const p = catalog.find(x => x.id === ing.idProd);
+            if (p) costUnitar += p.pretEur * ing.qty;
+        });
+        totalEUR += costUnitar * snap.portii;
+        totalOre += snap.ore * snap.portii;
+    });
+    const orePerZi = 12;
+    const nrPers = sel.numPersoane || 1;
+    const zileAutonomie = (totalOre / nrPers) / orePerZi;
+    const costPeZi = totalOre > 0 ? (totalEUR / totalOre) * (orePerZi * nrPers) : 0;
+    return { totalEUR, zileAutonomie, costPeZi, nrMeniuri: snapshot.length };
+}
+
+
+let pendingSelectionData = null;
+
+
+
+
+function computeSelectionRecipesDetail(sel) {
+    const nrPers = sel.numPersoane || 1;
+    const snapshot = sel.reteteSnapshot || [];
+    const items = snapshot.map(snap => {
+        const r = retete.find(x => String(x.id) === String(snap.id));
+        if (!r) return null;
+        let costUnitar = 0;
+        r.ingrediente.forEach(ing => {
+            const p = catalog.find(x => x.id === ing.idProd);
+            if (p) costUnitar += p.pretEur * ing.qty;
+        });
+        const eficienta = costUnitar > 0 ? snap.ore / costUnitar : 0;
+        return {
+            nume: r.nume,
+            orePerPersoana: Math.round(snap.ore / nrPers),
+            portii: snap.portii,
+            costUnitar,
+            eficienta
+        };
+    }).filter(Boolean);
+    return items.sort((a, b) => b.eficienta - a.eficienta);
+}
+
+
+function toggleSelectieExpand(id) {
+    if (expandedSelectii.has(id)) expandedSelectii.delete(id);
+    else expandedSelectii.add(id);
+    renderSavedMenusList();
+}
+
+async function saveCurrentSelection() {
+    if (!isUnlocked) return;
+    const selectate = retete.filter(r => r.selectat);
+    if (selectate.length === 0) { alert('Nicio rețetă selectată!'); return; }
+    const nrPers = parseInt(document.getElementById('num-persoane-input').value) || 1;
+    pendingSelectionData = {
+        reteteSnapshot: selectate.map(r => ({ id: r.id, ore: r.ore, portii: r.portii })),
+        numPersoane: nrPers
+    };
+
+    nameModalMode = 'create';
+    nameModalTargetId = null;
+    document.getElementById('name-selectie-title').textContent = 'Nume selecție';
+    document.getElementById('name-selectie-subtitle').textContent = 'Dă un nume acestei selecții';
+    document.getElementById('name-selectie-input').value = '';
+    document.getElementById('name-selectie-modal').classList.add('active');
+    setTimeout(() => document.getElementById('name-selectie-input').focus(), 300);
+}
+
+function renameSelectieSalvata(id) {
+    if (!isUnlocked) return;
+    const sel = selectiiSalvate.find(s => s.id === id);
+    if (!sel) return;
+    nameModalMode = 'rename';
+    nameModalTargetId = id;
+    document.getElementById('name-selectie-title').textContent = 'Redenumește selecția';
+    document.getElementById('name-selectie-subtitle').textContent = 'Schimbă numele acestei selecții';
+    document.getElementById('name-selectie-input').value = sel.nume;
+    document.getElementById('name-selectie-modal').classList.add('active');
+    setTimeout(() => {
+        const inp = document.getElementById('name-selectie-input');
+        inp.focus(); inp.select();
+    }, 300);
+}
+
+
+function closeNameSelectieModal() {
+    document.getElementById('name-selectie-modal').classList.remove('active');
+    pendingSelectionData = null;
+}
+
+
+
+
+async function confirmSaveCurrentSelection() {
+    const nume = document.getElementById('name-selectie-input').value.trim();
+    if (!nume) return;
+
+    if (nameModalMode === 'rename') {
+        const sel = selectiiSalvate.find(s => s.id === nameModalTargetId);
+        if (!sel) return;
+        sel.nume = nume;
+        await db_upsertSelectieSalvata(sel);
+        nameModalTargetId = null;
+        document.getElementById('name-selectie-modal').classList.remove('active');
+        renderSavedMenusList();
+        return;
+    }
+
+    if (!pendingSelectionData) return;
+    const newSel = {
+        id: 'sel' + Date.now(),
+        nume: nume,
+        reteteSnapshot: pendingSelectionData.reteteSnapshot,
+        numPersoane: pendingSelectionData.numPersoane,
+        createdAt: Date.now()
+    };
+
+    selectiiSalvate.unshift(newSel);
+    await db_upsertSelectieSalvata(newSel);
+    pendingSelectionData = null;
+    document.getElementById('name-selectie-modal').classList.remove('active');
+    renderSavedMenusList();
+}
+
+
+
+async function applySelectieSalvata(id) {
+    const sel = selectiiSalvate.find(s => s.id === id);
+    if (!sel) return;
+    const snapshot = sel.reteteSnapshot || [];
+    retete.forEach(r => {
+        const snap = snapshot.find(s => String(s.id) === String(r.id));
+        if (snap) {
+            r.selectat = true;
+            r.ore = snap.ore;
+            r.portii = snap.portii;
+        } else {
+            r.selectat = false;
+        }
+    });
+    document.getElementById('num-persoane-input').value = sel.numPersoane;
+    await db_saveNumPersoane(sel.numPersoane);
+    await Promise.all(retete.map(r => db_upsertReteta(r)));
+    await resetConfirmari();
+    closeSavedMenusModal();
+    render();
+}
+
+
+
+function deleteSelectieSalvata(id) {
+    if (!isUnlocked) return;
+    const sel = selectiiSalvate.find(s => s.id === id);
+    if (!sel) return;
+    pendingDeleteSelectieId = id;
+    document.getElementById('confirm-delete-selectie-name').textContent = sel.nume;
+    document.getElementById('confirm-delete-selectie-modal').classList.add('active');
+}
+
+function closeConfirmDeleteSelectieModal() {
+    document.getElementById('confirm-delete-selectie-modal').classList.remove('active');
+    pendingDeleteSelectieId = null;
+}
+
+async function executeDeleteSelectieSalvata() {
+    if (!pendingDeleteSelectieId) return;
+    const id = pendingDeleteSelectieId;
+    selectiiSalvate = selectiiSalvate.filter(s => s.id !== id);
+    await db_deleteSelectieSalvata(id);
+    document.getElementById('confirm-delete-selectie-modal').classList.remove('active');
+    pendingDeleteSelectieId = null;
+    renderSavedMenusList();
+}
+
+
+function renderSavedMenusList() {
+    const container = document.getElementById('saved-menus-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (selectiiSalvate.length === 0) {
+        container.innerHTML = `<p class="text-center text-gray-500 py-10 font-black text-xs uppercase tracking-widest">Nicio selecție salvată</p>`;
+        return;
+    }
+
+    selectiiSalvate.slice().sort((a,b) => b.createdAt - a.createdAt).forEach(sel => {
+        const stats = computeSelectionStats(sel);
+        const isExpanded = expandedSelectii.has(sel.id);
+        const nrPers = sel.numPersoane || 1;
+
+        let detailHTML = '';
+        if (isExpanded) {
+            const reteteOrdonate = computeSelectionRecipesDetail(sel);
+            if (reteteOrdonate.length === 0) {
+                detailHTML = `<p class="text-center text-gray-600 py-4 font-black text-[9px] uppercase tracking-widest">Niciun meniu găsit</p>`;
+            } else {
+                detailHTML = reteteOrdonate.map(item => `
+                    <div class="saved-menu-detail-row">
+                        <div class="min-w-0 flex-grow">
+                            <p class="saved-menu-detail-name truncate">${item.nume}</p>
+                            <p class="saved-menu-detail-meta">${item.orePerPersoana}h · ${item.portii} mese</p>
+                        </div>
+                        <p class="saved-menu-detail-price">${item.costUnitar.toFixed(2)} EUR</p>
+                    </div>`).join('');
+
+            }
+        }
+
+        container.innerHTML += `
+            <div class="saved-menu-card">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    <p class="saved-menu-name truncate">${sel.nume}</p>
+                    <button class="saved-menu-rename-btn locked-only" onclick="renameSelectieSalvata('${sel.id}')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="saved-menu-stats">
+                    <div class="saved-menu-stat">
+                        <p class="saved-menu-stat-label">Total</p>
+                        <p class="saved-menu-stat-val">${stats.totalEUR.toFixed(2)} EUR</p>
+                    </div>
+                    <div class="saved-menu-stat">
+                        <p class="saved-menu-stat-label">Zile</p>
+                        <p class="saved-menu-stat-val">${stats.zileAutonomie.toFixed(1)}</p>
+                    </div>
+                    <div class="saved-menu-stat">
+                        <p class="saved-menu-stat-label">EUR/zi</p>
+                        <p class="saved-menu-stat-val">${stats.costPeZi.toFixed(2)}</p>
+                    </div>
+                    <div class="saved-menu-stat">
+                        <p class="saved-menu-stat-label">Pers.</p>
+                        <p class="saved-menu-stat-val">${sel.numPersoane}</p>
+                    </div>
+                </div>
+                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">${stats.nrMeniuri} meniuri</p>
+                <button class="saved-menu-expand-btn ${isExpanded ? 'expanded' : ''}" onclick="toggleSelectieExpand('${sel.id}')">
+                    <span>${isExpanded ? 'Ascunde meniurile' : 'Vezi meniurile incluse'}</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                ${isExpanded ? `<div class="mb-2">${detailHTML}</div>` : ''}
+                <div class="saved-menu-actions">
+                    <div class="saved-menu-btn-apply" onclick="applySelectieSalvata('${sel.id}')">Aplică selecția</div>
+                    <div class="saved-menu-btn-delete locked-only" onclick="deleteSelectieSalvata('${sel.id}')">✕</div>
+                </div>
+            </div>`;
+    });
+}
+
+// ============================================================
 // UTILITĂȚI
 // ============================================================
+
 
 function normalizeText(text) {
     if (!text) return "";
@@ -3602,6 +4070,8 @@ window.onload = async function () {
     await db_loadFridgeNumPersoane();
     await db_loadFrigider();
     await db_loadConfirmari();
+    await db_loadSelectiiSalvate();
+
 
     // Activează toggle frigider la start
     const btn = document.getElementById('fridge-deduct-toggle');
