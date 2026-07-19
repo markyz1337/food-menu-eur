@@ -795,8 +795,13 @@
                 <p class="backup-table-sub">tabela: foodmenueuro_shopping_confirmari</p>
                 <button class="backup-btn backup-btn-export" onclick="exportTableCSV('foodmenueuro_shopping_confirmari')">⬇ Descarcă CSV</button>
             </div>
+            <div class="backup-table-row">
+                <p class="backup-table-name">📌 Meniuri salvate</p>
+                <p class="backup-table-sub">tabela: foodmenueuro_selectii_salvate</p>
+                <button class="backup-btn backup-btn-export" onclick="exportTableCSV('foodmenueuro_selectii_salvate')">⬇ Descarcă CSV</button>
+            </div>
             <div class="backup-table-row" style="background:rgba(192,132,252,0.04);border-color:rgba(192,132,252,0.15);">
-                <button class="backup-btn backup-btn-export" onclick="exportAllTablesCSV()">⬇ Descarcă TOATE (5 fișiere)</button>
+                <button class="backup-btn backup-btn-export" onclick="exportAllTablesCSV()">⬇ Descarcă TOATE (6 fișiere)</button>
             </div>
         </div>
 
@@ -3102,12 +3107,13 @@ async function exportTableCSV(tableName) {
 
 
 async function exportAllTablesCSV() {
-    const tables = ['foodmenueuro_catalog', 'foodmenueuro_retete', 'foodmenueuro_frigider', 'foodmenueuro_setari', 'foodmenueuro_shopping_confirmari'];
+    const tables = ['foodmenueuro_catalog', 'foodmenueuro_retete', 'foodmenueuro_frigider', 'foodmenueuro_setari', 'foodmenueuro_shopping_confirmari', 'foodmenueuro_selectii_salvate'];
     for (const t of tables) {
         await exportTableCSV(t);
         await new Promise(r => setTimeout(r, 400));
     }
 }
+
 
 
 
