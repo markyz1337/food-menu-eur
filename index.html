@@ -1628,17 +1628,21 @@ function buildShoppingListContent() {
             <div id="shopping-item-${item.id}" class="glass-card p-4 ${cardBorderClass}" style="transition: all 0.3s ease;">
                 <div class="flex justify-between items-start gap-3">
                     <div class="min-w-0 flex-grow">
-                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        <div class="flex items-center gap-2 mb-1 flex-nowrap">
+
 <span onclick="event.stopPropagation(); alert(\`${textDialog.replace(/`/g,'\\`')}\`)"
       class="flex-shrink-0 bg-white/10 text-white px-2 py-0.5 rounded-md text-[11px] font-black border border-white/5 uppercase cursor-pointer active:scale-95 transition-transform select-none">
     ${suAfisata.val} ${suAfisata.unit}
 </span>
-                            <p onclick="openAuchanForProduct('${item.id}')"
-                               class="font-bold text-white text-sm truncate cursor-pointer active:opacity-70 transition-opacity ${isConfirmed ? 'line-through opacity-50' : ''}">
+                            <div onclick="openAuchanForProduct('${item.id}')"
+                                 class="marquee-wrap flex-grow min-w-0 cursor-pointer active:opacity-70 transition-opacity ${isConfirmed ? 'opacity-50' : ''}">
+                                <span class="marquee-track font-bold text-white text-sm ${isConfirmed ? 'line-through' : ''}" data-title-track>
+                                    <span class="marquee-copy">${pReal.nume}</span>
+                                </span>
+                            </div>
 
-                                ${pReal.nume}
-                            </p>
-                            ${countMeniuri > 1 ? `<span class="w-5 h-5 flex items-center justify-center bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-black border border-emerald-500/30">${countMeniuri}</span>` : ''}
+                            ${countMeniuri > 1 ? `<span class="w-5 h-5 flex-shrink-0 flex items-center justify-center bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-black border border-emerald-500/30">${countMeniuri}</span>` : ''}
+
                         </div>
                         ${fridgeBadgeHTML ? `<div class="ml-1 mb-1">${fridgeBadgeHTML}</div>` : ''}
                         <p class="text-[10px] font-bold text-gray-500 uppercase tracking-tight ml-1">${pReal.pretEur.toFixed(2)} EUR / ${pReal.unit}</p>
@@ -1681,11 +1685,13 @@ function buildShoppingListContent() {
                                 <span class="flex-shrink-0 bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-md text-[11px] font-black border border-emerald-500/20 uppercase">
                                     ${su.val} ${su.unit}
                                 </span>
-                                <p onclick="openAuchanForProduct('${item.id}')"
-                                   class="font-bold text-white/50 text-sm truncate line-through cursor-pointer">
+                                <div onclick="openAuchanForProduct('${item.id}')"
+                                     class="marquee-wrap flex-grow min-w-0 cursor-pointer">
+                                    <span class="marquee-track font-bold text-white/50 text-sm line-through" data-title-track>
+                                        <span class="marquee-copy">${pReal.nume}</span>
+                                    </span>
+                                </div>
 
-                                    ${pReal.nume}
-                                </p>
                             </div>
                             <div class="flex items-center gap-2 ml-1">
                                 <span class="fridge-reduction-badge">❄️ ${suFridge.val} ${suFridge.unit} în frigider — acoperit</span>
@@ -1701,7 +1707,9 @@ function buildShoppingListContent() {
     }
 
     updateShoppingFab(totalItems, confirmedCount);
+    requestAnimationFrame(() => applyMarquees());
 }
+
 
 // ============================================================
 // CATALOG DATA
