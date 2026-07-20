@@ -130,7 +130,8 @@
         .fridge-card-unavailable { border-left: 4px solid rgba(239,68,68,0.6); box-shadow: inset 12px 0 18px -6px rgba(239,68,68,0.20), -4px 0 15px -3px rgba(239,68,68,0.15); opacity: 0.85; }
         .fridge-section-title { font-size: 9px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; padding: 6px 0 10px 2px; }
         .missing-badge { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; border-radius: 8px; padding: 2px 7px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
-        .fridge-qty-btn { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; border-radius: 10px; padding: 0 6px; height: 28px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 2px; }
+        .fridge-qty-btn { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; border-radius: 10px; padding: 0 6px; height: 28px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+
         .fridge-qty-btn:active { transform: scale(0.93); background: rgba(16,185,129,0.3); }
         .score-badge { background: rgba(192,132,252,0.15); border: 1px solid rgba(192,132,252,0.3); color: #e9d5ff; border-radius: 10px; padding: 2px 8px; font-size: 9px; font-weight: 900; }
         .fridge-product-row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 7px 10px; margin-bottom: 10px; }
@@ -633,6 +634,34 @@
         .saved-menu-detail-meta { font-size:8px; font-weight:900; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
         .saved-menu-detail-price { font-size:13px; font-weight:900; color:#c084fc; white-space:nowrap; margin-left:8px; }
 
+        /* FRIDGE PICKER MULTI-SELECT */
+        .fridge-picker-checkbox {
+            width:22px; height:22px; border-radius:7px;
+            border:2px solid rgba(16,185,129,0.35);
+            background: rgba(16,185,129,0.05);
+            display:flex; align-items:center; justify-content:center;
+            color:#10b981; flex-shrink:0; transition: all 0.2s;
+        }
+        .fridge-picker-checkbox.checked { background: rgba(16,185,129,0.25); border-color: #10b981; }
+        .fridge-picker-row-selected {
+            border-color: rgba(16,185,129,0.4) !important;
+            box-shadow: inset 12px 0 18px -6px rgba(16,185,129,0.25), -4px 0 15px -3px rgba(16,185,129,0.15) !important;
+        }
+        .fridge-picker-qty-wrap {
+            display:flex; align-items:center; gap:4px;
+            background: rgba(16,185,129,0.15); border-radius:12px;
+            padding:6px 10px; flex-shrink:0; margin-left:8px;
+        }
+        .fridge-picker-qty-input {
+            width:44px; background:transparent; border:none; outline:none;
+            color:#6ee7b7; font-weight:900; font-size:13px; text-align:center;
+            -moz-appearance:textfield;
+        }
+        .fridge-picker-qty-input::-webkit-inner-spin-button,
+        .fridge-picker-qty-input::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+        .fridge-picker-qty-unit { font-size:9px; font-weight:900; color:#6ee7b7; text-transform:uppercase; }
+
+
         /* CONFIRM DELETE SELECTIE MODAL */
         #confirm-delete-selectie-modal {
             position: fixed; inset: 0; z-index: 3500;
@@ -968,7 +997,15 @@
         <input type="text" id="fridge-picker-search" oninput="renderFridgePickerOptions()" placeholder="Caută produs..." class="search-pill w-full">
     </div>
     <div id="fridge-product-options"></div>
+    <div class="absolute bottom-8 left-0 w-full px-6 pointer-events-none">
+        <button id="fridge-picker-import-btn" onclick="importFridgePickerSelections()"
+                class="pointer-events-auto w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl shadow-emerald-500/40 opacity-40 transition-all"
+                style="pointer-events:none;">
+            Importă (0)
+        </button>
+    </div>
 </div>
+
 
 <div class="orb"></div>
 
@@ -1328,6 +1365,8 @@ let isCollapsed = false;
 
 let frigider = [];
 let fridgeActiveCtx = null;
+let fridgePickerSelections = {};
+
 let selectiiSalvate = [];
 let expandedSelectii = new Set();
 let nameModalMode = 'create';
@@ -2012,10 +2051,12 @@ async function db_deleteSelectieSalvata(id) {
 // ============================================================
 
 function openFridgePicker() {
+    fridgePickerSelections = {};
     document.getElementById('fridge-picker-search').value = '';
     renderFridgePickerOptions();
     document.getElementById('fridge-product-picker').classList.add('active');
 }
+
 
 function renderFridgePickerOptions() {
     const container = document.getElementById('fridge-product-options');
@@ -2025,34 +2066,82 @@ function renderFridgePickerOptions() {
         .filter(p => normalizeText(p.nume).includes(searchVal) && !frigider.find(f => f.id === p.id))
         .sort((a, b) => a.nume.localeCompare(b.nume))
         .forEach(prod => {
-            const inFridge = frigider.find(f => f.id === prod.id);
+            const isSelected = fridgePickerSelections.hasOwnProperty(prod.id);
+            const qtyBase = isSelected ? fridgePickerSelections[prod.id] : 1;
+            const su = smartUnit(qtyBase, prod.unit);
+            const safeId = prod.id.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const unitEsc = prod.unit.replace(/'/g, "\\'");
+            const suUnitEsc = su.unit.replace(/'/g, "\\'");
             container.innerHTML += `
-                <div onclick="addToFridge('${prod.id}')" class="w-full p-4 mx-0 glass-card mb-2 mx-4 flex justify-between items-center active:scale-[0.98] transition-transform cursor-pointer" style="margin: 0 0 8px 0; border-radius: 18px;">
-                    <div>
-                        <span class="block font-bold text-white text-sm">${prod.nume}</span>
-                        <span class="text-[10px] font-bold text-gray-500 uppercase">${prod.unit}</span>
+                <div onclick="toggleFridgePickerSelection('${prod.id}')" class="w-full p-4 mx-0 glass-card mb-2 mx-4 flex justify-between items-center active:scale-[0.98] transition-transform cursor-pointer ${isSelected ? 'fridge-picker-row-selected' : ''}" style="margin: 0 0 8px 0; border-radius: 18px;">
+                    <div class="flex items-center gap-3 min-w-0 flex-grow">
+                        <div class="fridge-picker-checkbox ${isSelected ? 'checked' : ''}">
+                            ${isSelected ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>` : ''}
+                        </div>
+                        <div class="min-w-0">
+                            <span class="block font-bold text-white text-sm truncate">${prod.nume}</span>
+                            <span class="text-[10px] font-bold text-gray-500 uppercase">${prod.pretEur.toFixed(2)} EUR / ${prod.unit}</span>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        ${inFridge ? `<span class="text-[9px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg uppercase">În frigider</span>` : ''}
-                        <span class="text-sm font-black text-purple-400">${prod.pretEur.toFixed(2)} EUR</span>
-                    </div>
+                    ${isSelected ? `
+                    <div class="fridge-picker-qty-wrap" onclick="event.stopPropagation()">
+                        <input id="fridge-picker-qty-${safeId}"
+                               type="number" inputmode="decimal" min="0" step="any"
+                               value="${su.val}"
+                               onfocus="this.select()"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+                               onchange="updateFridgePickerQty('${prod.id}', this.value, '${suUnitEsc}', '${unitEsc}')"
+                               class="fridge-picker-qty-input">
+                        <span class="fridge-picker-qty-unit">${su.unit}</span>
+                    </div>` : ''}
                 </div>`;
         });
+    updateFridgePickerImportBtn();
 }
 
-async function addToFridge(prodId) {
-    const existing = frigider.find(f => f.id === prodId);
-    if (existing) {
-        closeSheets();
-        renderFridge();
-        return;
+function toggleFridgePickerSelection(prodId) {
+    if (fridgePickerSelections.hasOwnProperty(prodId)) {
+        delete fridgePickerSelections[prodId];
+    } else {
+        fridgePickerSelections[prodId] = 1;
     }
-    const newItem = { id: prodId, qty: 1, addedAt: Date.now(), modifiedAt: null };
-    frigider.push(newItem);
-    await db_upsertFrigiderItem(newItem);
+    renderFridgePickerOptions();
+}
+
+function updateFridgePickerQty(prodId, val, displayUnit, baseUnit) {
+    let typedVal = parseFloat(String(val).replace(',', '.')) || 0;
+    if (typedVal < 0) typedVal = 0;
+    fridgePickerSelections[prodId] = convertDisplayToBaseQty(typedVal, displayUnit, baseUnit);
+    renderFridgePickerOptions();
+}
+
+
+function updateFridgePickerImportBtn() {
+    const btn = document.getElementById('fridge-picker-import-btn');
+    if (!btn) return;
+    const count = Object.keys(fridgePickerSelections).length;
+    btn.textContent = `Importă (${count})`;
+    if (count > 0) {
+        btn.classList.remove('opacity-40');
+        btn.style.pointerEvents = 'auto';
+    } else {
+        btn.classList.add('opacity-40');
+        btn.style.pointerEvents = 'none';
+    }
+}
+
+async function importFridgePickerSelections() {
+    const entries = Object.entries(fridgePickerSelections);
+    if (entries.length === 0) return;
+    const now = Date.now();
+    const newItems = entries.map(([id, qty]) => ({ id, qty: qty || 0, addedAt: now, modifiedAt: null }));
+    frigider.push(...newItems);
+    await Promise.all(newItems.map(item => db_upsertFrigiderItem(item)));
+    fridgePickerSelections = {};
     closeSheets();
     renderFridge();
 }
+
 
 async function deleteFridgeItem(prodId) {
     const prod = catalog.find(p => p.id === prodId);
@@ -2134,9 +2223,10 @@ function renderFridge() {
                            style="-moz-appearance:textfield; -webkit-appearance:none;">
                     <span class="text-[10px] font-black text-emerald-400">${smartUnit(item.qty, prod.unit).unit}</span>
                 </div>
-                <button onclick="deleteFridgeItem('${prod.id}')" class="w-7 h-7 flex items-center justify-center bg-red-500/10 text-red-400 rounded-full border border-red-500/15 active:scale-90 transition-all text-xs">✕</button>
+                  <button onclick="deleteFridgeItem('${prod.id}')" class="w-7 h-7 flex-shrink-0 flex items-center justify-center bg-red-500/10 text-red-400 rounded-full border border-red-500/15 active:scale-90 transition-all text-xs">✕</button>
             </div>`;
     });
+
 
     if (!fridgeStockSearchTerm) {
         if (total > FRIDGE_PREVIEW_COUNT) {
@@ -3007,6 +3097,15 @@ function switchTab(tab) {
     }
 
     setTimeout(() => window.scrollTo({ top: scrollPositions[tab] || 0, behavior: 'smooth' }), 5);
+}
+
+function convertDisplayToBaseQty(typedVal, displayUnit, baseUnit) {
+    const du = (displayUnit || '').toLowerCase().trim();
+    const bu = (baseUnit || '').toLowerCase().trim();
+    if (du !== bu && (du === 'g' || du === 'ml')) {
+        return typedVal / 1000;
+    }
+    return typedVal;
 }
 
 function smartUnit(qty, unit) {
