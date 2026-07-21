@@ -2134,9 +2134,10 @@ function showProductMenus(prodId) {
             const costIng = prod.pretEur * (ing ? ing.qty : 0);
 
             listEl.innerHTML += `
-                <div class="modal-menu-row ${isSelected ? 'selected-menu' : ''}">
+                <div class="modal-menu-row ${isSelected ? 'selected-menu' : ''}" onclick="goToMenuFromModal(${r.id})" style="cursor:pointer;">
                     <div class="flex items-center gap-3 min-w-0 flex-grow">
                         <div class="w-2 h-2 rounded-full flex-shrink-0 ${isSelected ? 'bg-purple-400' : 'bg-gray-600'}"></div>
+
                         <div class="min-w-0">
                             <p class="font-bold text-white text-sm truncate">${r.nume}</p>
                             <p class="text-[9px] font-bold text-gray-500 uppercase tracking-wide">
@@ -2175,9 +2176,27 @@ function showProductMenus(prodId) {
     modal.classList.add('active');
 }
 
+function goToMenuFromModal(recipeId) {
+    closeProductMenusModal();
+    if (searchTerm) {
+        const searchInput = document.getElementById('main-search');
+        if (searchInput) searchInput.value = '';
+        searchTerm = '';
+        const clearBtn = document.getElementById('clear-search');
+        if (clearBtn) clearBtn.classList.add('hidden');
+    }
+    lastEditedId = recipeId;
+    if (currentTab !== 'home') {
+        switchTab('home');
+    } else {
+        render();
+    }
+}
+
 function closeProductMenusModal() {
     document.getElementById('product-menus-modal').classList.remove('active');
 }
+
 
 // ============================================================
 // FRIGIDER -- SUPABASE
@@ -3736,8 +3755,18 @@ function renderRecurente() {
         return;
     }
 
-    recurente.forEach((item) => {
+    const recurenteFiltrate = recurente.filter(item => normalizeText(item.nume).includes(searchTerm));
+
+    if (recurenteFiltrate.length === 0) {
+        list.innerHTML = searchTerm
+            ? `<p class="text-center text-gray-600 py-6 font-black text-[10px] uppercase tracking-widest">Niciun produs lunar găsit</p>`
+            : `<p class="text-center text-gray-600 py-6 font-black text-[10px] uppercase tracking-widest">Niciun produs lunar adăugat</p>`;
+        return;
+    }
+
+    recurenteFiltrate.forEach((item) => {
         const rIdx = recurente.findIndex(x => x.id === item.id);
+
         const total = item.pretEur * item.qty;
         const cardStateClass = item.selectat ? 'recurent-card-active' : 'recurent-card-inactive';
 
