@@ -3680,10 +3680,15 @@ function render() {
             });
         });
     }
+    const recurenteTotalHud = recurente.filter(r => r.selectat).reduce((s, r) => s + r.pretEur * r.qty, 0);
+    tEURHud += recurenteTotalHud;
+
     const pretPeZiHud = tOre > 0 ? (tEURHud / tOre) * (orePerZi * nrPers) : 0;
 
     document.getElementById('hud-EUR').innerText = tEURHud.toFixed(2) + ' EUR';
     document.getElementById('hud-per-day').innerText = pretPeZiHud.toFixed(2) + ' EUR/zi';
+
+
 
     const ziEURntregi = Math.floor(zileAutonomie);
     const oreRest = Math.round(tOreAutonomie % orePerZi);
