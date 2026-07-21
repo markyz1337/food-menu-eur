@@ -31,6 +31,9 @@
         .glass-card.inactive input[type="checkbox"] { opacity: 1; }
         .glass-card.inactive .recipe-title-input { color: white !important; -webkit-text-fill-color: white !important; }
         .card-divider { height: 1px; width: 100%; background: linear-gradient(to right, transparent, rgba(192, 132, 252, 0.4) 20%, rgba(192, 132, 252, 0.4) 80%, transparent); margin-top: 12px; margin-bottom: 12px; border: none; transition: background 0.3s ease; }
+		        .card-divider-amber { height: 1px; width: 100%; background: linear-gradient(to right, transparent, rgba(245, 158, 11, 0.4) 20%, rgba(245, 158, 11, 0.4) 80%, transparent); margin-top: 12px; margin-bottom: 12px; border: none; }
+        .recurent-card-inactive .card-divider-amber { background: linear-gradient(to right, transparent, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.15) 80%, transparent); }
+
         .glass-card.inactive .card-divider { background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.2) 80%, transparent); }
         @keyframes slideUpFade {
             from { opacity: 0; transform: translateX(-50%) translateY(18px); }
@@ -634,6 +637,36 @@
         .saved-menu-detail-meta { font-size:8px; font-weight:900; color:#6b7280; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
         .saved-menu-detail-price { font-size:13px; font-weight:900; color:#c084fc; white-space:nowrap; margin-left:8px; }
 
+
+#meniuri-view-modal {
+    position: fixed; inset: 0; z-index: 3600;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 0; pointer-events: none; opacity: 0;
+    transition: opacity 0.25s ease;
+}
+#meniuri-view-modal.active { pointer-events: auto; opacity: 1; }
+#meniuri-view-modal .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+#meniuri-view-modal .modal-panel {
+    position: relative; z-index: 1; width: 100%; max-width: 440px;
+    background: rgba(10,10,16,0.98); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 28px 28px 0 0; padding: 24px 20px 40px;
+    transform: translateY(30px);
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+#meniuri-view-modal.active .modal-panel { transform: translateY(0); }
+
+.recurent-card-active {
+    border-left: 4px solid #f59e0b !important;
+    box-shadow: inset 12px 0 18px -6px rgba(245,158,11,0.28), -4px 0 15px -3px rgba(245,158,11,0.18) !important;
+}
+.recurent-card-inactive {
+    border-left: 4px solid rgba(255,255,255,0.15) !important;
+    box-shadow: none !important;
+}
+
+
+
+
         /* FRIDGE PICKER MULTI-SELECT */
         .fridge-picker-checkbox {
             width:22px; height:22px; border-radius:7px;
@@ -829,9 +862,15 @@
                 <p class="backup-table-sub">tabela: foodmenueuro_selectii_salvate</p>
                 <button class="backup-btn backup-btn-export" onclick="exportTableCSV('foodmenueuro_selectii_salvate')">⬇ Descarcă CSV</button>
             </div>
-            <div class="backup-table-row" style="background:rgba(192,132,252,0.04);border-color:rgba(192,132,252,0.15);">
-                <button class="backup-btn backup-btn-export" onclick="exportAllTablesCSV()">⬇ Descarcă TOATE (6 fișiere)</button>
+            <div class="backup-table-row">
+                <p class="backup-table-name">🛒 Cumpărături lunare</p>
+                <p class="backup-table-sub">tabela: foodmenueuro_recurente</p>
+                <button class="backup-btn backup-btn-export" onclick="exportTableCSV('foodmenueuro_recurente')">⬇ Descarcă CSV</button>
             </div>
+            <div class="backup-table-row" style="background:rgba(192,132,252,0.04);border-color:rgba(192,132,252,0.15);">
+                <button class="backup-btn backup-btn-export" onclick="exportAllTablesCSV()">⬇ Descarcă TOATE (7 fișiere)</button>
+            </div>
+
         </div>
 
     </div>
@@ -915,6 +954,29 @@
         </div>
     </div>
 </div>
+
+
+<!-- MENIURI VIEW MODAL -->
+<div id="meniuri-view-modal">
+    <div class="modal-backdrop" onclick="closeMeniuriViewModal()"></div>
+    <div class="modal-panel">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-black tracking-tighter text-white">Vezi</h3>
+                <p class="text-[9px] font-bold text-purple-400 uppercase tracking-[2px]">Ce vrei să vizualizezi?</p>
+            </div>
+            <button onclick="closeMeniuriViewModal()" class="w-9 h-9 flex items-center justify-center bg-white/5 rounded-full text-white font-bold text-sm">✕</button>
+        </div>
+        <button onclick="goToMeniuriSimple()" class="w-full py-4 mb-3 bg-purple-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-purple-500/40">
+            🍽️ Meniuri
+        </button>
+        <button onclick="goToCheltuieliLunare()" class="w-full py-4 bg-amber-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-amber-500/40">
+            🛒 Cheltuieli lunare
+        </button>
+    </div>
+</div>
+
+
 
 <!-- 1. SHEET LISTA CUMPĂRĂTURI -->
 
@@ -1088,11 +1150,21 @@
 
 
 
-        <div id="recipes-list" class="space-y-6"></div>
+         <div id="recipes-list" class="space-y-6"></div>
         <button onclick="addRecipe()" class="locked-only-block w-full py-5 glass-card border-dashed border-2 border-white/10 text-gray-400 font-black text-xs tracking-widest uppercase">+ Adaugă Meniu Nou</button>
+
+<div class="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent my-2"></div>
+        <div id="recurente-section-anchor" class="flex items-center justify-between px-1" style="scroll-margin-top: 100px;">
+            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">🛒 Cumpărături lunare</h3>
+            <span id="recurente-total-eur" class="text-xs font-black text-amber-400"></span>
+        </div>
+        <div id="recurente-list" class="space-y-4"></div>
+
+        <button onclick="addRecurent()" class="locked-only-block w-full py-5 glass-card border-dashed border-2 border-white/10 text-gray-400 font-black text-xs tracking-widest uppercase">+ Adaugă Produs Lunar</button>
     </div>
 
     <div id="page-catalog" class="hidden space-y-4">
+
 <div class="px-2 mb-4">
     <div class="fridge-search-wrap">
         <input type="text" id="catalog-search"
@@ -1209,7 +1281,8 @@ onblur="if(!this.value||this.value==='0')this.value='1'; db_saveFridgeNumPersoan
 </div>
 
 <nav class="tab-bar">
-    <button onclick="switchTab('home')" id="nav-home" class="nav-btn active"><span>Meniuri</span></button>
+<button onclick="handleMeniuriNavClick()" id="nav-home" class="nav-btn active"><span>Meniuri</span></button>
+
     <button onclick="switchTab('catalog')" id="nav-catalog" class="nav-btn"><span>Catalog</span></button>
     <button onclick="switchTab('fridge')" id="nav-fridge" class="nav-btn">
         <span>❄️ Frigider</span>
@@ -1544,29 +1617,34 @@ function buildShoppingListContent() {
         };
     });
 
-    sortabEURtems.sort((a, b) => {
-        if (a.fullyCovered !== b.fullyCovered) return a.fullyCovered ? 1 : -1;
-        if (a.confirmat !== b.confirmat) return a.confirmat ? 1 : -1;
+    function sortItems(arr) {
+        return arr.slice().sort((a, b) => {
+            const unitA = (a.unitDisplay || '').toLowerCase().replace(/[^a-z]/g, '');
+            const unitB = (b.unitDisplay || '').toLowerCase().replace(/[^a-z]/g, '');
+            const prioritati = { 'kg': 6, 'l': 5, 'g': 4, 'ml': 3, 'leg': 2, 'buc': 1 };
+            const pA = prioritati[unitA] || 0, pB = prioritati[unitB] || 0;
+            if (pB !== pA) return pB - pA;
+            if (pA === 0 && pB === 0 && unitA !== unitB) return unitA.localeCompare(unitB);
+            if (b.qtyDeAdaugat !== a.qtyDeAdaugat) return b.qtyDeAdaugat - a.qtyDeAdaugat;
+            const nA = catalog.find(x => x.id === a.id)?.nume || '';
+            const nB = catalog.find(x => x.id === b.id)?.nume || '';
+            return nA.localeCompare(nB);
+        });
+    }
 
-        const unitA = (a.unitDisplay || '').toLowerCase().replace(/[^a-z]/g, '');
-        const unitB = (b.unitDisplay || '').toLowerCase().replace(/[^a-z]/g, '');
-        const prioritati = { 'kg': 6, 'l': 5, 'g': 4, 'ml': 3, 'leg': 2, 'buc': 1 };
-        const pA = prioritati[unitA] || 0, pB = prioritati[unitB] || 0;
-        if (pB !== pA) return pB - pA;
-        if (pA === 0 && pB === 0 && unitA !== unitB) return unitA.localeCompare(unitB);
-        if (b.qtyDeAdaugat !== a.qtyDeAdaugat) return b.qtyDeAdaugat - a.qtyDeAdaugat;
-        const nA = catalog.find(x => x.id === a.id)?.nume || '';
-        const nB = catalog.find(x => x.id === b.id)?.nume || '';
-        return nA.localeCompare(nB);
-    });
+    const coveredItems = sortItems(sortabEURtems.filter(i => i.fullyCovered));
+    const activeItems = sortabEURtems.filter(i => !i.fullyCovered);
+    const pendingRegular = sortItems(activeItems.filter(i => !i.confirmat));
+    const confirmedRegular = sortItems(activeItems.filter(i => i.confirmat));
 
-    const visibEURtems = sortabEURtems.filter(i => !i.fullyCovered);
-    const coveredItems = sortabEURtems.filter(i => i.fullyCovered);
+    const recurenteSelectate = recurente.filter(r => r.selectat);
+    const pendingRecurente = recurenteSelectate.filter(r => !shoppingConfirmari[r.id]);
+    const confirmedRecurente = recurenteSelectate.filter(r => !!shoppingConfirmari[r.id]);
 
-    const totalItems = visibEURtems.length;
-    const confirmedCount = visibEURtems.filter(i => i.confirmat).length;
+    const totalItems = activeItems.length + recurenteSelectate.length;
+    const confirmedCount = confirmedRegular.length + confirmedRecurente.length;
 
-    const totalProduse = sortabEURtems.length;
+    const totalProduse = sortabEURtems.length + recurenteSelectate.length;
     const acoperite = coveredItems.length;
     let summaryText = `${totalProduse} PRODUSE UNICE`;
     if (fridgeDeductActive && acoperite > 0) {
@@ -1580,9 +1658,9 @@ function buildShoppingListContent() {
         return;
     }
 
-    visibEURtems.forEach(item => {
+    function renderRegularCard(item) {
         const pReal = catalog.find(x => x.id === item.id);
-        if (!pReal) return;
+        if (!pReal) return '';
 
         const qtyAfisata = fridgeDeductActive ? item.qtyDeAdaugat : item.totalQtyNecesara;
         const pretTotalEUR = pReal.pretEur * qtyAfisata;
@@ -1597,7 +1675,6 @@ function buildShoppingListContent() {
         }
 
         const countMeniuri = item.calcule.length;
-        const numeEscaped = pReal.nume.replace(/'/g, "\\'").replace(/`/g, '\\`');
         const isConfirmed = item.confirmat;
 
         let cardBorderClass;
@@ -1624,12 +1701,11 @@ function buildShoppingListContent() {
 
         const suAfisata = smartUnit(qtyAfisata, item.unitDisplay);
 
-        listContent.innerHTML += `
+        return `
             <div id="shopping-item-${item.id}" class="glass-card p-4 ${cardBorderClass}" style="transition: all 0.3s ease;">
                 <div class="flex justify-between items-start gap-3">
                     <div class="min-w-0 flex-grow">
                         <div class="flex items-center gap-2 mb-1 flex-nowrap">
-
 <span onclick="event.stopPropagation(); alert(\`${textDialog.replace(/`/g,'\\`')}\`)"
       class="flex-shrink-0 bg-white/10 text-white px-2 py-0.5 rounded-md text-[11px] font-black border border-white/5 uppercase cursor-pointer active:scale-95 transition-transform select-none">
     ${suAfisata.val} ${suAfisata.unit}
@@ -1640,9 +1716,7 @@ function buildShoppingListContent() {
                                     <span class="marquee-copy">${pReal.nume}</span>
                                 </span>
                             </div>
-
                             ${countMeniuri > 1 ? `<span class="w-5 h-5 flex-shrink-0 flex items-center justify-center bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-black border border-emerald-500/30">${countMeniuri}</span>` : ''}
-
                         </div>
                         ${fridgeBadgeHTML ? `<div class="ml-1 mb-1">${fridgeBadgeHTML}</div>` : ''}
                         <p class="text-[10px] font-bold text-gray-500 uppercase tracking-tight ml-1">${pReal.pretEur.toFixed(2)} EUR / ${pReal.unit}</p>
@@ -1653,6 +1727,45 @@ function buildShoppingListContent() {
                         <p class="text-[9px] font-bold text-gray-600 line-through leading-none mt-0.5">${(pReal.pretEur * item.totalQtyNecesara).toFixed(2)} EUR</p>` : ''}
                     </div>
                 </div>
+                 <button class="confirm-cart-btn ${btnClass}"
+                        onclick="toggleConfirmare('${item.id}')"
+                        id="confirm-btn-${item.id}">
+                    ${btnIcon}
+                    <span>${btnText}</span>
+                </button>
+            </div>`;
+    }
+
+    function renderRecurentCard(item) {
+        const isConfirmed = !!shoppingConfirmari[item.id];
+        const totalItem = item.pretEur * item.qty;
+        const cardBorderClass = isConfirmed ? 'shopping-card-confirmed' : 'shopping-card-pending';
+        const btnClass = isConfirmed ? 'confirmed' : 'pending';
+        const btnIcon = isConfirmed
+            ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+            : `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 01-8 0"></path></svg>`;
+        const btnText = isConfirmed ? 'În coș ✓ (apasă pentru anulare)' : 'Adaugă în coș';
+
+        return `
+            <div id="shopping-item-${item.id}" class="glass-card p-4 ${cardBorderClass}" style="transition: all 0.3s ease;">
+                <div class="flex justify-between items-start gap-3">
+                    <div class="min-w-0 flex-grow">
+                        <div class="flex items-center gap-2 mb-1 flex-nowrap">
+                            <span class="flex-shrink-0 bg-white/10 text-white px-2 py-0.5 rounded-md text-[11px] font-black border border-white/5 uppercase select-none">
+                                ${item.qty} buc
+                            </span>
+                            <div class="marquee-wrap flex-grow min-w-0">
+                                <span class="marquee-track font-bold text-white text-sm ${isConfirmed ? 'line-through' : ''}" data-title-track>
+                                    <span class="marquee-copy">${item.nume}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-tight ml-1">${item.pretEur.toFixed(2)} EUR / buc</p>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <p class="text-base font-black ${isConfirmed ? 'text-emerald-400' : 'text-white'} leading-none">${totalItem.toFixed(2)} EUR</p>
+                    </div>
+                </div>
                 <button class="confirm-cart-btn ${btnClass}"
                         onclick="toggleConfirmare('${item.id}')"
                         id="confirm-btn-${item.id}">
@@ -1660,7 +1773,31 @@ function buildShoppingListContent() {
                     <span>${btnText}</span>
                 </button>
             </div>`;
-    });
+    }
+
+    pendingRegular.forEach(item => { listContent.innerHTML += renderRegularCard(item); });
+
+    if (pendingRecurente.length > 0) {
+        listContent.innerHTML += `
+            <div class="flex items-center gap-3 my-4">
+                <div class="flex-1 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
+                <span class="text-[9px] font-black text-purple-400 uppercase tracking-widest whitespace-nowrap">🛒 Cumpărături lunare (${pendingRecurente.length})</span>
+                <div class="flex-1 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
+            </div>`;
+        pendingRecurente.forEach(item => { listContent.innerHTML += renderRecurentCard(item); });
+    }
+
+    const confirmedAllCount = confirmedRegular.length + confirmedRecurente.length;
+    if (confirmedAllCount > 0) {
+        listContent.innerHTML += `
+            <div class="flex items-center gap-3 my-4">
+                <div class="flex-1 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent"></div>
+                <span class="text-[9px] font-black text-emerald-400 uppercase tracking-widest whitespace-nowrap">✅ Deja în coș (${confirmedAllCount})</span>
+                <div class="flex-1 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent"></div>
+            </div>`;
+        confirmedRegular.forEach(item => { listContent.innerHTML += renderRegularCard(item); });
+        confirmedRecurente.forEach(item => { listContent.innerHTML += renderRecurentCard(item); });
+    }
 
     if (fridgeDeductActive && coveredItems.length > 0) {
         listContent.innerHTML += `
@@ -1675,7 +1812,6 @@ function buildShoppingListContent() {
             if (!pReal) return;
             const su = smartUnit(item.totalQtyNecesara, item.unitDisplay);
             const suFridge = smartUnit(item.qtyInFridge, item.unitDisplay);
-            const numeEscaped = pReal.nume.replace(/'/g, "\\'").replace(/`/g, '\\`');
 
             listContent.innerHTML += `
                 <div class="glass-card p-4 shopping-card-covered" style="transition: all 0.3s ease;">
@@ -1691,7 +1827,6 @@ function buildShoppingListContent() {
                                         <span class="marquee-copy">${pReal.nume}</span>
                                     </span>
                                 </div>
-
                             </div>
                             <div class="flex items-center gap-2 ml-1">
                                 <span class="fridge-reduction-badge">❄️ ${suFridge.val} ${suFridge.unit} în frigider — acoperit</span>
@@ -1709,6 +1844,7 @@ function buildShoppingListContent() {
     updateShoppingFab(totalItems, confirmedCount);
     requestAnimationFrame(() => applyMarquees());
 }
+
 
 
 // ============================================================
@@ -1732,6 +1868,9 @@ let retete = [
 let activeCtx = null;
 let lastEditedId = null;
 let lastEditedCatalogId = null;
+let recurente = [];
+let lastEditedRecurentId = null;
+
 
 // ============================================================
 // DATE HELPERS
@@ -1875,14 +2014,36 @@ function openAuchanForProduct(prodId) {
     window.open(buildEsselungaUrl(term), '_blank');
 }
 
+
+function openAuchanForRecurent(id) {
+    const item = recurente.find(r => r.id === id);
+    if (!item) return;
+    const term = (item.searchQuery && item.searchQuery.trim() !== '') ? item.searchQuery.trim() : item.nume;
+    window.open(buildEsselungaUrl(term), '_blank');
+}
+
+
 let sqModalProdId = null;
+let sqModalTargetType = 'catalog';
 
 function editSearchQuery(prodId) {
     const prod = catalog.find(p => p.id === prodId);
     if (!prod) return;
     sqModalProdId = prodId;
+    sqModalTargetType = 'catalog';
     document.getElementById('sq-modal-prod-name').textContent = prod.nume;
     document.getElementById('sq-modal-input').value = prod.searchQuery || '';
+    document.getElementById('search-query-modal').classList.add('active');
+    setTimeout(() => document.getElementById('sq-modal-input').focus(), 300);
+}
+
+function editSearchQueryRecurent(id) {
+    const item = recurente.find(r => r.id === id);
+    if (!item) return;
+    sqModalProdId = id;
+    sqModalTargetType = 'recurent';
+    document.getElementById('sq-modal-prod-name').textContent = item.nume;
+    document.getElementById('sq-modal-input').value = item.searchQuery || '';
     document.getElementById('search-query-modal').classList.add('active');
     setTimeout(() => document.getElementById('sq-modal-input').focus(), 300);
 }
@@ -1894,15 +2055,28 @@ function closeSearchQueryModal() {
 
 async function saveSearchQueryFromModal() {
     if (!sqModalProdId) return;
+    const val = document.getElementById('sq-modal-input').value;
+
+    if (sqModalTargetType === 'recurent') {
+        const rIdx = recurente.findIndex(r => r.id === sqModalProdId);
+        if (rIdx === -1) return;
+        recurente[rIdx].searchQuery = val.trim();
+        recurente[rIdx].modifiedAt = Date.now();
+        await db_upsertRecurent(recurente[rIdx]);
+        closeSearchQueryModal();
+        render();
+        return;
+    }
+
     const cIdx = catalog.findIndex(p => p.id === sqModalProdId);
     if (cIdx === -1) return;
-    const val = document.getElementById('sq-modal-input').value;
     catalog[cIdx].searchQuery = val.trim();
     catalog[cIdx].modifiedAt = Date.now();
     await db_upsertCatalogItem(catalog[cIdx]);
     closeSearchQueryModal();
     render();
 }
+
 
 
 
@@ -2648,6 +2822,45 @@ async function db_deleteCatalogItem(id) {
     await supabaseClient.from('foodmenueuro_catalog').delete().eq('id', id);
 }
 
+async function db_loadRecurente() {
+    if (!USE_SUPABASE) return;
+    const { data, error } = await supabaseClient.from('foodmenueuro_recurente').select('*');
+    if (error) { console.error('Eroare recurente:', error); return; }
+    recurente = (data || []).map(r => ({
+        id: r.id,
+        nume: r.nume,
+        pretEur: parseFloat(r.pret_eur),
+        unit: r.unit || 'buc',
+        qty: parseFloat(r.qty),
+        selectat: r.selectat,
+        addedAt: r.added_at || null,
+        modifiedAt: r.modified_at || null,
+        searchQuery: r.search_query || ''
+    }));
+}
+
+async function db_upsertRecurent(item) {
+    if (!USE_SUPABASE) return;
+    await supabaseClient.from('foodmenueuro_recurente').upsert({
+        id: item.id,
+        nume: item.nume,
+        pret_eur: item.pretEur,
+        unit: item.unit,
+        qty: item.qty,
+        selectat: item.selectat,
+        added_at: item.addedAt || Date.now(),
+        modified_at: item.modifiedAt || null,
+        search_query: item.searchQuery || null
+    });
+}
+
+
+async function db_deleteRecurent(id) {
+    if (!USE_SUPABASE) return;
+    await supabaseClient.from('foodmenueuro_recurente').delete().eq('id', id);
+}
+
+
 async function db_upsertReteta(reteta) {
     if (!USE_SUPABASE) return;
     const payload = { nume: reteta.nume, ore: reteta.ore, portii: reteta.portii, tags: reteta.tags || '', selectat: reteta.selectat, ingrediente: reteta.ingrediente };
@@ -3057,6 +3270,34 @@ function clearSearch() {
     input.value = ""; updateSearch(""); input.blur();
 }
 
+
+function handleMeniuriNavClick() {
+    if (currentTab !== 'home') {
+        switchTab('home');
+        return;
+    }
+    document.getElementById('meniuri-view-modal').classList.add('active');
+}
+
+function closeMeniuriViewModal() {
+    document.getElementById('meniuri-view-modal').classList.remove('active');
+}
+
+function goToMeniuriSimple() {
+    closeMeniuriViewModal();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToCheltuieliLunare() {
+    closeMeniuriViewModal();
+    setTimeout(() => {
+        const el = document.getElementById('recurente-section-anchor');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+}
+
+
+
 function switchTab(tab) {
     if (currentTab === tab) return;
     scrollPositions[currentTab] = window.scrollY;
@@ -3218,7 +3459,8 @@ async function exportTableCSV(tableName) {
 
 
 async function exportAllTablesCSV() {
-    const tables = ['foodmenueuro_catalog', 'foodmenueuro_retete', 'foodmenueuro_frigider', 'foodmenueuro_setari', 'foodmenueuro_shopping_confirmari', 'foodmenueuro_selectii_salvate'];
+    const tables = ['foodmenueuro_catalog', 'foodmenueuro_retete', 'foodmenueuro_frigider', 'foodmenueuro_setari', 'foodmenueuro_shopping_confirmari', 'foodmenueuro_selectii_salvate', 'foodmenueuro_recurente'];
+
     for (const t of tables) {
         await exportTableCSV(t);
         await new Promise(r => setTimeout(r, 400));
@@ -3443,13 +3685,189 @@ function render() {
     }
 
     renderCatalog();
+    renderRecurente();
     if (currentTab === 'fridge') renderFridgeResults();
 }
 
 
 // ============================================================
-// RENDER CATALOG  (cu modal preț + secțiune nefolosite)
+// RECURENTE (CUMPĂRĂTURI LUNARE)
 // ============================================================
+
+function handleRecurentCardClick(event, rIdx) {
+    if (isUnlocked) return;
+    const target = event.target;
+    if (target.tagName === 'INPUT' || target.tagName === 'BUTTON') return;
+    if (target.closest('input') || target.closest('button')) return;
+    toggleSelectRecurent(rIdx, !recurente[rIdx].selectat);
+}
+
+function fmtEUR(val) {
+    const r = Math.round((val + Number.EPSILON) * 100) / 100;
+    return Number.isInteger(r) ? String(r) : r.toFixed(2);
+}
+
+function renderRecurente() {
+    const list = document.getElementById('recurente-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    const totalEl = document.getElementById('recurente-total-eur');
+    if (totalEl) {
+        const totalLunar = recurente.filter(r => r.selectat).reduce((s, r) => s + r.pretEur * r.qty, 0);
+        totalEl.textContent = recurente.some(r => r.selectat) ? `${fmtEUR(totalLunar)} EUR` : '';
+    }
+
+    if (recurente.length === 0) {
+        list.innerHTML = `<p class="text-center text-gray-600 py-6 font-black text-[10px] uppercase tracking-widest">Niciun produs lunar adăugat</p>`;
+        return;
+    }
+
+    recurente.forEach((item) => {
+        const rIdx = recurente.findIndex(x => x.id === item.id);
+        const total = item.pretEur * item.qty;
+        const cardStateClass = item.selectat ? 'recurent-card-active' : 'recurent-card-inactive';
+
+        list.innerHTML += `
+            <div id="recurent-${item.id}"
+                 onclick="handleRecurentCardClick(event, ${rIdx})"
+                 class="glass-card no-glow p-4 relative transition-all duration-300 ${cardStateClass}">
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" ${item.selectat ? 'checked' : ''}
+                           onchange="toggleSelectRecurent(${rIdx}, this.checked)"
+                           class="w-6 h-6 accent-amber-500 flex-shrink-0">
+
+                    <div class="flex-grow min-w-0">
+                        ${isUnlocked ? `
+                        <input class="font-extrabold text-base text-white bg-transparent outline-none border-none w-full"
+                               value="${item.nume}"
+                               onchange="updateRecurentField(${rIdx}, 'nume', this.value)">
+                        <div class="flex items-center gap-1 mt-1">
+                            <input type="number" step="0.01" inputmode="decimal"
+                                   class="text-[10px] font-black text-amber-400 bg-transparent outline-none border-none"
+                                   value="${item.pretEur}"
+                                   onfocus="this.select()"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+                                   onblur="updateRecurentField(${rIdx}, 'pretEur', parseFloat(this.value) || 0)"
+                                   style="width: ${String(item.pretEur).length + 2}ch;">
+                            <span class="text-[9px] font-bold text-gray-600 uppercase">EUR / buc</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <span class="text-[10px] flex-shrink-0">🔍</span>
+                            <input type="text"
+                                   class="text-[9px] font-bold uppercase tracking-tight flex-grow bg-transparent outline-none border-none truncate ${item.searchQuery ? 'text-cyan-400' : 'text-gray-600'}"
+                                   value="${item.searchQuery || ''}"
+                                   placeholder="foloseşte numele produsului"
+                                   onfocus="this.select()"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+                                   onchange="updateRecurentField(${rIdx}, 'searchQuery', this.value.trim())">
+                        </div>` : `
+                        <div class="marquee-wrap">
+                            <span class="marquee-track font-extrabold text-base text-white" data-title-track>
+                                <span class="marquee-copy">${item.nume}</span>
+                            </span>
+                        </div>
+
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-tight mt-0.5">${fmtEUR(item.pretEur)} EUR / buc</p>`}
+                    </div>
+                </div>
+
+                <div class="card-divider-amber"></div>
+
+                <div class="flex items-stretch gap-2 ${isUnlocked ? 'mb-3' : ''}">
+                    <div class="bg-emerald-500/10 px-2 py-2 rounded-xl flex flex-col items-center justify-center border border-emerald-500/20 flex-1">
+                        <span class="font-black text-white">${fmtEUR(total)}</span>
+                        <span class="text-[8px] font-black text-emerald-400 uppercase">total eur</span>
+                    </div>
+                    <div class="bg-amber-500/10 px-2 py-2 rounded-xl flex flex-col items-center justify-center border border-amber-500/20 flex-1">
+                        <input id="recurent-qty-${item.id}"
+                               type="number" inputmode="numeric" min="1" step="1"
+                               value="${item.qty}"
+                               onfocus="this.select()"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+                               onblur="confirmRecurentQtyInput(${rIdx}, this)"
+                               class="w-10 text-center font-black text-amber-300 bg-transparent outline-none border-none"
+                               style="-moz-appearance:textfield;-webkit-appearance:none;">
+                        <span class="text-[8px] font-black text-amber-400/70 uppercase">buc</span>
+                    </div>
+                </div>
+
+
+                ${isUnlocked ? `
+                <div class="flex items-center justify-end gap-1.5" onclick="event.stopPropagation()">
+                    <button onclick="openAuchanForRecurent('${item.id}')"
+                            class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full active:scale-90 transition-all">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                    <button onclick="editSearchQueryRecurent('${item.id}')"
+                            title="Termen de căutare personalizat"
+                            class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full active:scale-90 transition-all">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </button>
+                    <button onclick="confirmDeleteRecurent(${rIdx})" class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-red-500/10 text-red-500 border border-red-500/20 rounded-full active:scale-90 transition-all">✕</button>
+                </div>` : ''}
+            </div>`;
+
+    });
+
+    if (lastEditedRecurentId) {
+        const idToScroll = lastEditedRecurentId;
+        lastEditedRecurentId = null;
+        setTimeout(() => {
+            const el = document.getElementById(`recurent-${idToScroll}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 500);
+    }
+
+    requestAnimationFrame(() => applyMarquees());
+}
+
+
+async function toggleSelectRecurent(rIdx, checked) {
+    recurente[rIdx].selectat = checked;
+    render();
+    await db_upsertRecurent(recurente[rIdx]);
+}
+
+async function updateRecurentField(rIdx, field, value) {
+    recurente[rIdx][field] = value;
+    recurente[rIdx].modifiedAt = Date.now();
+    await db_upsertRecurent(recurente[rIdx]);
+    render();
+}
+
+async function confirmRecurentQtyInput(rIdx, inputEl) {
+    let finalVal = Math.round(parseFloat(String(inputEl.value).replace(',', '.')) || 1);
+    if (finalVal < 1) finalVal = 1;
+    recurente[rIdx].qty = finalVal;
+    recurente[rIdx].modifiedAt = Date.now();
+    inputEl.value = finalVal;
+    lastEditedRecurentId = recurente[rIdx].id;
+    await db_upsertRecurent(recurente[rIdx]);
+    render();
+}
+
+async function addRecurent() {
+    const newItem = { id: 'rec' + Date.now(), nume: 'Produs Nou', pretEur: 0, unit: 'buc', qty: 1, selectat: true, addedAt: Date.now(), modifiedAt: null, searchQuery: '' };
+    recurente.push(newItem);
+    await db_upsertRecurent(newItem);
+    render();
+}
+
+
+async function confirmDeleteRecurent(idx) {
+    const item = recurente[idx];
+    await db_deleteRecurent(item.id);
+    recurente.splice(idx, 1);
+    render();
+}
+
 
 function renderCatalog() {
     const cat = document.getElementById('catalog-list');
@@ -4188,6 +4606,8 @@ window.onload = async function () {
     await db_loadFrigider();
     await db_loadConfirmari();
     await db_loadSelectiiSalvate();
+    await db_loadRecurente();
+
 
 
     // Activează toggle frigider la start
