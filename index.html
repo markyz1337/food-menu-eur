@@ -1765,11 +1765,13 @@ function buildShoppingListContent() {
                             <span class="flex-shrink-0 bg-white/10 text-white px-2 py-0.5 rounded-md text-[11px] font-black border border-white/5 uppercase select-none">
                                 ${item.qty} buc
                             </span>
-                            <div class="marquee-wrap flex-grow min-w-0">
+                            <div onclick="openAuchanForRecurent('${item.id}')"
+                                 class="marquee-wrap flex-grow min-w-0 cursor-pointer active:opacity-70 transition-opacity">
                                 <span class="marquee-track font-bold text-white text-sm ${isConfirmed ? 'line-through' : ''}" data-title-track>
                                     <span class="marquee-copy">${item.nume}</span>
                                 </span>
                             </div>
+
                         </div>
                         <p class="text-[10px] font-bold text-gray-500 uppercase tracking-tight ml-1">${item.pretEur.toFixed(2)} EUR / buc</p>
                     </div>
